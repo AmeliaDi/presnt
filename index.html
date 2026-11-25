@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Música Estocástica — Algoritmos y Estructuras de Datos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <!-- Barra superior de progreso continuo -->
+  <div class="top-progress" aria-hidden="true">
+    <div class="top-progress__fill" id="progress-fill"></div>
+  </div>
+
+  <!-- Escenario 16:9 centrado y escalado proporcionalmente -->
+  <main id="viewport" class="viewport" aria-label="Presentación técnica">
+    <div id="stage" class="stage" role="region" aria-live="polite">
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 1: PORTADA                                -->
+      <!-- ===================================================== -->
+      <section class="slide slide--motif is-active" data-slide="1" data-title="Portada">
+        <div class="cover-layout">
+          <div class="cover-copy">
+            <span class="eyebrow">Algoritmos y Estructuras de Datos · Proyecto Final 2026</span>
+            <h1 class="cover-title">Música Estocástica</h1>
+            <p class="cover-subtitle">
+              De caminatas aleatorias a composición musical con 4 instrumentos
+            </p>
+            <div class="cover-meta">
+              <div class="author-badge">
+                <span class="author-label">Presentan</span>
+                <strong class="author-name">Amelia Enora Marceline Chavez B.</strong>
+                <strong class="author-name">Fernando Hernandez</strong>
+              </div>
+              <div class="pill-group">
+                <span class="tag-pill">Browniano · O(N)</span>
+                <span class="tag-pill">Voraz + HeapMax · O(N)</span>
+                <span class="tag-pill">Backtracking · O(3^N) acotada</span>
+                <span class="tag-pill">Síntesis · O(N log N + S)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="cover-visual" aria-hidden="true">
+            <svg viewBox="0 0 460 440" class="svg-full">
+              <defs>
+                <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#C85A32" />
+                  <stop offset="100%" stop-color="#1D3557" />
+                </linearGradient>
+              </defs>
+              <g stroke="#D9D2C5" stroke-width="2">
+                <line x1="20" y1="120" x2="440" y2="120" />
+                <line x1="20" y1="160" x2="440" y2="160" />
+                <line x1="20" y1="200" x2="440" y2="200" />
+                <line x1="20" y1="240" x2="440" y2="240" />
+                <line x1="20" y1="280" x2="440" y2="280" />
+              </g>
+              <g fill="#C85A32" opacity="0.75">
+                <circle cx="52" cy="95" r="7" />
+                <circle cx="88" cy="298" r="8" />
+                <circle cx="124" cy="142" r="6" />
+                <circle cx="160" cy="252" r="8" />
+                <circle cx="196" cy="108" r="7" />
+              </g>
+              <path d="M 52 95 L 88 298 L 124 142 L 160 252 L 196 108" fill="none" stroke="#C85A32" stroke-width="2.5"
+                stroke-dasharray="6 5" />
+              <path d="M 196 108 C 235 108, 240 240, 276 240 C 312 240, 312 160, 348 160 C 384 160, 384 200, 420 200"
+                fill="none" stroke="url(#waveGrad)" stroke-width="5" stroke-linecap="round" />
+              <g>
+                <ellipse cx="276" cy="240" rx="14" ry="10" transform="rotate(-18 276 240)" fill="#1D3557" />
+                <line x1="288" y1="238" x2="288" y2="165" stroke="#1D3557" stroke-width="4" />
+                <ellipse cx="348" cy="160" rx="14" ry="10" transform="rotate(-18 348 160)" fill="#1D3557" />
+                <line x1="360" y1="158" x2="360" y2="85" stroke="#1D3557" stroke-width="4" />
+                <ellipse cx="420" cy="200" rx="14" ry="10" transform="rotate(-18 420 200)" fill="#C85A32" />
+                <line x1="432" y1="198" x2="432" y2="125" stroke="#C85A32" stroke-width="4" />
+                <path d="M 288 165 L 360 85" stroke="#1D3557" stroke-width="6" stroke-linecap="round" />
+              </g>
+              <text x="50" y="355" fill="#C85A32" font-size="18" font-weight="700">Azar</text>
+              <text x="200" y="355" fill="#4A5366" font-size="18" font-weight="700">→ Optimización →</text>
+              <text x="372" y="355" fill="#1D3557" font-size="18" font-weight="700">Armonía</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 2: CONTEXTO MUSICAL (RESERVADA)           -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="2" data-title="Contexto musical">
+        <header class="slide-header">
+          <span class="slide-kicker">02 · Fundamento</span>
+          <h2 class="slide-title">Contexto musical</h2>
+        </header>
+
+        <!-- Reemplazar este bloque con la diapositiva de contexto musical -->
+        <div class="placeholder-frame">
+          <div class="placeholder-icon" aria-hidden="true">♪</div>
+          <p class="placeholder-marker">[PEGAR CONTEXTO MUSICAL AQUÍ]</p>
+          <p class="placeholder-hint">
+            Espacio reservado para lo musical, que no se te olvide enora del futuro.
+          </p>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 3: PROPÓSITO                              -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="3" data-title="Propósito">
+        <header class="slide-header">
+          <span class="slide-kicker">03 · Propósito</span>
+          <h2 class="slide-title">¿Qué problema resuelve el proyecto?</h2>
+        </header>
+
+        <div class="purpose-lead">
+          <p class="lead-text">
+            El azar puro produce notas desconectadas sin sentido armónico.
+          </p>
+          <p class="lead-text lead-text--muted">
+            Este programa genera música desde un proceso aleatorio y compara <strong>dos algoritmos</strong> (Voraz y
+            Backtracking) para transformarla en audio estructurado.
+          </p>
+        </div>
+
+        <div class="purpose-diagram">
+          <svg viewBox="0 0 1120 300" class="svg-full" role="img"
+            aria-label="Transformación de azar bruto a audio organizado">
+            <rect x="20" y="30" width="300" height="240" rx="22" fill="#FFFFFF" stroke="#E4DED3" stroke-width="2.5" />
+            <text x="170" y="72" text-anchor="middle" fill="#C85A32" font-size="23" font-weight="800">1. Azar
+              bruto</text>
+            <g fill="#C85A32">
+              <circle cx="80" cy="130" r="9" />
+              <circle cx="122" cy="200" r="7" />
+              <circle cx="164" cy="112" r="10" />
+              <circle cx="206" cy="212" r="8" />
+              <circle cx="255" cy="148" r="9" />
+            </g>
+            <path d="M 80 130 L 122 200 L 164 112 L 206 212 L 255 148" fill="none" stroke="#C85A32" stroke-width="2.5"
+              stroke-dasharray="5 4" />
+            <text x="170" y="246" text-anchor="middle" fill="#4A5366" font-size="18">Notas aisladas sin regla</text>
+
+            <path d="M 336 150 L 392 150" stroke="#1D3557" stroke-width="4" stroke-linecap="round" />
+            <polygon points="392,140 412,150 392,160" fill="#1D3557" />
+
+            <rect x="422" y="30" width="280" height="240" rx="22" fill="#1D3557" />
+            <text x="562" y="72" text-anchor="middle" fill="#FAF8F4" font-size="23" font-weight="800">2.
+              Optimización</text>
+            <rect x="456" y="102" width="212" height="52" rx="12" fill="#2A4A77" />
+            <text x="562" y="135" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="700">Voraz +
+              HeapMax</text>
+            <rect x="456" y="170" width="212" height="52" rx="12" fill="#C85A32" />
+            <text x="562" y="203" text-anchor="middle" fill="#FFFFFF" font-size="20" font-weight="700">Backtracking +
+              Poda</text>
+            <text x="562" y="250" text-anchor="middle" fill="#CBD5E1" font-size="17">Progresión, turnos y límites</text>
+
+            <path d="M 718 150 L 774 150" stroke="#1D3557" stroke-width="4" stroke-linecap="round" />
+            <polygon points="774,140 794,150 774,160" fill="#1D3557" />
+
+            <rect x="804" y="30" width="296" height="240" rx="22" fill="#FFFFFF" stroke="#227A67" stroke-width="3" />
+            <text x="952" y="72" text-anchor="middle" fill="#227A67" font-size="23" font-weight="800">3. Música en
+              .wav</text>
+            <g stroke="#227A67" stroke-width="4" fill="none" stroke-linecap="round">
+              <path d="M 852 135 Q 882 105, 912 135 T 972 135 T 1032 135" />
+              <path d="M 852 168 Q 882 198, 912 168 T 972 168 T 1032 168" stroke="#1D3557" />
+              <path d="M 852 200 Q 882 182, 912 200 T 972 200 T 1032 200" stroke="#C85A32" />
+            </g>
+            <text x="952" y="246" text-anchor="middle" fill="#4A5366" font-size="18">4 instrumentos audibles</text>
+          </svg>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 4: ENTRADAS Y SALIDAS                     -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="4" data-title="Entradas y salidas">
+        <header class="slide-header">
+          <span class="slide-kicker">04 · Interfaz del programa</span>
+          <h2 class="slide-title">Entradas → Proceso → Salidas</h2>
+        </header>
+
+        <div class="io-grid">
+          <article class="card io-card">
+            <div class="io-badge io-badge--in">Entra (consola)</div>
+            <ul class="io-list">
+              <li><code>duracion</code>: entero entre <strong>3 y 60 s</strong></li>
+              <li><code>nota</code>: tónica de <strong>C a B</strong> (sin bemoles)</li>
+              <li><code>modo</code>: <code>"mayor"</code> o <code>"menor"</code></li>
+            </ul>
+            <div class="example-box">
+              <span class="example-label">Ejemplo real</span>
+              <code>duracion = 10 · nota = "C" · modo = "mayor"</code>
+            </div>
+          </article>
+
+          <div class="io-arrow" aria-hidden="true">→</div>
+
+          <article class="card io-card io-card--mid">
+            <div class="io-badge io-badge--proc">Se procesa</div>
+            <ul class="io-list">
+              <li>Escala fija de <strong>7 notas</strong> en octava 3</li>
+              <li><strong>140 BPM</strong> → <code>N = 23</code> notas por canal</li>
+              <li><strong>4 instrumentos</strong> MIDI simultáneos</li>
+            </ul>
+            <div class="example-box example-box--dark">
+              <span class="example-label">Escala activa</span>
+              <code>['C3','D3','E3','F3','G3','A3','B3']</code>
+            </div>
+          </article>
+
+          <div class="io-arrow" aria-hidden="true">→</div>
+
+          <article class="card io-card">
+            <div class="io-badge io-badge--out">Sale (3 audios WAV)</div>
+            <ul class="io-list">
+              <li><code>aleatorio_bruto.wav</code> (sin ajuste)</li>
+              <li><code>voraz.wav</code> (cola de prioridad)</li>
+              <li><code>backtracking.wav</code> (poda + reglas)</li>
+            </ul>
+            <div class="example-box">
+              <span class="example-label">Formato real</span>
+              <code>Estéreo PCM 16-bit · 44 100 Hz</code>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 5: FLUJO GENERAL (ANIMADO POR PASOS)      -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="5" data-title="Flujo general" data-steps="5" data-renderer="flow">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">05 · Arquitectura · Paso a paso</span>
+              <h2 class="slide-title">Flujo general y su costo por etapa</h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="flow-board">
+          <div class="flow-row">
+            <div class="flow-node" data-flow-step="1">
+              <div class="flow-top">
+                <div class="flow-num-wrap">
+                  <span class="flow-num">1</span>
+                  <span class="flow-live-dot" aria-hidden="true"></span>
+                </div>
+                <span class="comp-pill comp-pill--const">Constante · O(1)</span>
+              </div>
+              <h3>Validar y crear escalas</h3>
+              <p>Verifica entradas y guarda 24 escalas en un diccionario.</p>
+              <code>music21 · 168 ops fijas</code>
+            </div>
+
+            <div class="flow-conn" data-flow-conn="2" aria-hidden="true">
+              <svg viewBox="0 0 46 24" class="flow-arrow-svg">
+                <line class="flow-line" x1="2" y1="12" x2="36" y2="12" />
+                <polygon class="flow-head" points="34,6 45,12 34,18" />
+                <circle class="flow-packet" cx="8" cy="12" r="4" />
+              </svg>
+            </div>
+
+            <div class="flow-node" data-flow-step="2">
+              <div class="flow-top">
+                <div class="flow-num-wrap">
+                  <span class="flow-num">2</span>
+                  <span class="flow-live-dot" aria-hidden="true"></span>
+                </div>
+                <span class="comp-pill comp-pill--linear">Lineal · O(N)</span>
+              </div>
+              <h3>Movimiento Browniano</h3>
+              <p>Genera 4 listas aleatorias base (una por instrumento).</p>
+              <code>random.gauss + % 6</code>
+            </div>
+
+            <div class="flow-conn" data-flow-conn="3" aria-hidden="true">
+              <svg viewBox="0 0 46 24" class="flow-arrow-svg">
+                <line class="flow-line" x1="2" y1="12" x2="36" y2="12" />
+                <polygon class="flow-head" points="34,6 45,12 34,18" />
+                <circle class="flow-packet" cx="8" cy="12" r="4" />
+              </svg>
+            </div>
+
+            <div class="flow-node" data-flow-step="3">
+              <div class="flow-top">
+                <div class="flow-num-wrap">
+                  <span class="flow-num">3</span>
+                  <span class="flow-live-dot" aria-hidden="true"></span>
+                </div>
+                <span class="comp-pill comp-pill--linear">Lineal · O(N) (G=7)</span>
+              </div>
+              <h3>Algoritmo Voraz</h3>
+              <p>Aproxima guitarra y campana con <code>HeapMax</code> de 7 nodos.</p>
+              <code>La Folía / Quintas</code>
+            </div>
+          </div>
+
+          <div class="flow-bridge" data-flow-conn="4" aria-hidden="true">
+            <svg viewBox="0 0 800 26" class="flow-bridge-svg">
+              <path class="flow-line flow-line--bridge" d="M 670 2 L 670 13 L 175 13 L 175 21" fill="none" />
+              <polygon class="flow-head" points="169,18 175,26 181,18" />
+              <circle class="flow-bridge-dot" cx="175" cy="13" r="4" />
+            </svg>
+          </div>
+
+          <div class="flow-row flow-row--bottom">
+            <div class="flow-node" data-flow-step="4">
+              <div class="flow-top">
+                <div class="flow-num-wrap">
+                  <span class="flow-num">4</span>
+                  <span class="flow-live-dot" aria-hidden="true"></span>
+                </div>
+                <span class="comp-pill comp-pill--exp">Exponencial · O(3^N) acotada</span>
+              </div>
+              <h3>Backtracking con Poda</h3>
+              <p>Explora intervalos <code>3a/5a/7a</code> con turnos y corta ramas caras.</p>
+              <code>DFS ≤ 4000 nodos</code>
+            </div>
+
+            <div class="flow-conn" data-flow-conn="5" aria-hidden="true">
+              <svg viewBox="0 0 46 24" class="flow-arrow-svg">
+                <line class="flow-line" x1="2" y1="12" x2="36" y2="12" />
+                <polygon class="flow-head" points="34,6 45,12 34,18" />
+                <circle class="flow-packet" cx="8" cy="12" r="4" />
+              </svg>
+            </div>
+
+            <div class="flow-node flow-node--wide" data-flow-step="5">
+              <div class="flow-top">
+                <div class="flow-num-wrap">
+                  <span class="flow-num">5</span>
+                  <span class="flow-live-dot" aria-hidden="true"></span>
+                </div>
+                <span class="comp-pill comp-pill--nlogn">O(N log N + S)</span>
+              </div>
+              <h3>Síntesis MIDI → 3 archivos .wav</h3>
+              <p>Ordena instantes <code>note_on / note_off</code> y renderiza las <code>S</code> muestras de audio.</p>
+              <code>sorted (Timsort) + meltysynth + scipy</code>
+            </div>
+          </div>
+
+          <div class="step-banner" id="flow-caption">
+            Presiona avanzar o ▶ Animar para recorrer las 5 etapas y ver cómo escala cada una.
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 6: MAPA DE ALGORITMOS (PROGRESIVO)        -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="6" data-title="Algoritmos usados" data-steps="4" data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">06 · Panorama algorítmico · Paso a paso</span>
+              <h2 class="slide-title">¿Qué algoritmos usamos y cómo escalan?</h2>
+            </div>
+            <span class="step-cue">Clic o → para revelar</span>
+          </div>
+        </header>
+
+        <div class="algo-map">
+          <article class="card algo-card reveal-item" data-reveal="1">
+            <div>
+              <div class="algo-phase">Fase A · Generación</div>
+              <h3>Movimiento Browniano</h3>
+              <span class="comp-pill comp-pill--linear">Lineal · O(N)</span>
+            </div>
+            <p class="algo-what">Caminata gaussiana: cada valor parte del anterior para crear continuidad.</p>
+            <div class="algo-mini">
+              <svg viewBox="0 0 220 74" class="svg-full" aria-hidden="true">
+                <polyline points="10,55 45,30 80,45 115,18 150,36 185,12 210,26" fill="none" stroke="#C85A32"
+                  stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="210" cy="26" r="5" fill="#1D3557" />
+              </svg>
+            </div>
+            <span class="algo-out">→ Genera <code>aleatorio_bruto.wav</code></span>
+          </article>
+
+          <article class="card algo-card reveal-item" data-reveal="2">
+            <div>
+              <div class="algo-phase">Fase B · Optimización local</div>
+              <h3>Voraz + HeapMax</h3>
+              <span class="comp-pill comp-pill--linear">Lineal · O(N) (G=7)</span>
+            </div>
+            <p class="algo-what">Elige la mejor nota en cada instante con un heap fijo de 7 grados.</p>
+            <div class="algo-mini">
+              <svg viewBox="0 0 220 74" class="svg-full" aria-hidden="true">
+                <line x1="110" y1="16" x2="65" y2="54" stroke="#1D3557" stroke-width="2.5" />
+                <line x1="110" y1="16" x2="155" y2="54" stroke="#1D3557" stroke-width="2.5" />
+                <circle cx="110" cy="16" r="13" fill="#C85A32" />
+                <circle cx="65" cy="54" r="11" fill="#1D3557" />
+                <circle cx="155" cy="54" r="11" fill="#1D3557" />
+              </svg>
+            </div>
+            <span class="algo-out">→ Genera <code>voraz.wav</code></span>
+          </article>
+
+          <article class="card algo-card reveal-item" data-reveal="3">
+            <div>
+              <div class="algo-phase">Fase C · Búsqueda con reglas</div>
+              <h3>DFS + Backtracking</h3>
+              <span class="comp-pill comp-pill--exp">Exponencial · O(3^N)</span>
+            </div>
+            <p class="algo-what">Prueba 3 intervalos y retrocede/poda si rompe reglas o sube el costo.</p>
+            <div class="algo-mini">
+              <svg viewBox="0 0 220 74" class="svg-full" aria-hidden="true">
+                <line x1="110" y1="14" x2="60" y2="58" stroke="#227A67" stroke-width="3.5" />
+                <line x1="110" y1="14" x2="160" y2="58" stroke="#B8372B" stroke-width="2.5" stroke-dasharray="4 3" />
+                <circle cx="110" cy="14" r="11" fill="#1D3557" />
+                <circle cx="60" cy="58" r="10" fill="#227A67" />
+                <line x1="150" y1="48" x2="170" y2="66" stroke="#B8372B" stroke-width="3" />
+                <line x1="170" y1="48" x2="150" y2="66" stroke="#B8372B" stroke-width="3" />
+              </svg>
+            </div>
+            <span class="algo-out">→ Genera <code>backtracking.wav</code></span>
+          </article>
+
+          <article class="card algo-card reveal-item" data-reveal="4">
+            <div>
+              <div class="algo-phase">Fase D · Síntesis</div>
+              <h3>Ordenamiento Timsort</h3>
+              <span class="comp-pill comp-pill--nlogn">O(N log N + S)</span>
+            </div>
+            <p class="algo-what">Ordena eventos MIDI por muestra para renderizar 44 100 muestras/s.</p>
+            <div class="algo-mini">
+              <svg viewBox="0 0 220 74" class="svg-full" aria-hidden="true">
+                <line x1="15" y1="42" x2="205" y2="42" stroke="#1D3557" stroke-width="3" />
+                <circle cx="40" cy="42" r="8" fill="#1D3557" />
+                <circle cx="95" cy="42" r="8" fill="#C85A32" />
+                <circle cx="145" cy="42" r="8" fill="#1D3557" />
+                <circle cx="190" cy="42" r="8" fill="#227A67" />
+              </svg>
+            </div>
+            <span class="algo-out">→ Construye los 3 <code>.wav</code></span>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 7: ALGORITMO 1 - BROWNIANO                -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="7" data-title="Algoritmo 1: Browniano" data-steps="3" data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">07 · Algoritmo 1 (Generación base) · Paso a paso</span>
+              <h2 class="slide-title">Movimiento Browniano: azar con memoria</h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Cómo funciona</h3>
+              <p>Suma saltos normales (<code>actual += random.gauss(0, 1)</code>) y mapea cada valor a la escala con
+                <code>int(x * 100) % 6</code>.</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Por qué se usa aquí</h3>
+              <p>Frente a <code>random.randint</code> puro (saltos sin relación), cada nota hereda el punto previo y da
+                variación continua en los 4 canales.</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. Complejidad: Lineal · O(N)</h3>
+              <p>Recorre 1 ciclo de <code>N</code> notas por instrumento. Si la duración se duplica, tiempo y memoria
+                (<code>O(N)</code>) crecen al doble.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram">
+            <div class="diagram-title">
+              <span>Azar sin memoria vs. Browniano</span>
+              <span class="comp-pill comp-pill--linear">Lineal · O(N)</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img"
+              aria-label="Comparación entre ruido independiente y caminata browniana">
+              <rect x="14" y="14" width="472" height="134" rx="14" fill="#FAF8F4" stroke="#E4DED3" stroke-width="2" />
+              <text x="32" y="42" fill="#4A5366" font-size="16" font-weight="800">Azar independiente (descartado):
+                saltos bruscos</text>
+              <polyline points="38,120 96,58 154,126 212,62 270,118 328,56 386,124 446,66" fill="none" stroke="#94A3B8"
+                stroke-width="3" stroke-dasharray="5 4" />
+              <g fill="#64748B">
+                <circle cx="38" cy="120" r="5" />
+                <circle cx="96" cy="58" r="5" />
+                <circle cx="154" cy="126" r="5" />
+                <circle cx="212" cy="62" r="5" />
+                <circle cx="270" cy="118" r="5" />
+                <circle cx="328" cy="56" r="5" />
+              </g>
+
+              <rect x="14" y="168" width="472" height="156" rx="14" fill="#FFFFFF" stroke="#C85A32"
+                stroke-width="2.5" />
+              <text x="32" y="196" fill="#C85A32" font-size="16" font-weight="800">Browniano (elegido): cada paso parte
+                del anterior</text>
+              <polyline points="38,272 96,254 154,262 212,235 270,244 328,222 386,238 446,215" fill="none"
+                stroke="#1D3557" stroke-width="4" stroke-linecap="round" />
+              <g fill="#C85A32">
+                <circle cx="38" cy="272" r="6" />
+                <circle cx="96" cy="254" r="6" />
+                <circle cx="154" cy="262" r="6" />
+                <circle cx="212" cy="235" r="6" />
+                <circle cx="270" cy="244" r="6" />
+                <circle cx="328" cy="222" r="6" />
+                <circle cx="386" cy="238" r="6" />
+                <circle cx="446" cy="215" r="7" />
+              </g>
+              <text x="250" y="306" text-anchor="middle" fill="#1D3557" font-size="15.5" font-weight="700">
+                4 canales × N pasos = crecimiento lineal directo O(N)
+              </text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 8: ESTRUCTURA 1 - TABLAS HASH             -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="8" data-title="Estructura: Tablas Hash" data-steps="3" data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">08 · Estructura clave · Paso a paso</span>
+              <h2 class="slide-title">Tablas Hash: <code>dict</code> y <code>defaultdict</code></h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Qué usamos</h3>
+              <p>Diccionarios Python: <code>repositorio_escalas</code> (24 escalas),
+                <code>indice_para_la_nota...</code>, <code>mapa_midi</code> y <code>acciones_por_muestra</code>.</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Por qué y complejidad: Constante · O(1)</h3>
+              <p>Crear las 24 escalas siempre toma <strong>168 pasos fijos</strong> (no depende de la duración) y cada
+                consulta responde en <strong>O(1)</strong>.</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. Alternativa descartada</h3>
+              <p>Buscar en listas (<strong>O(n)</strong>) o recalcular objetos <code>pitch.Pitch()</code> en cada nota
+                del archivo.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram">
+            <div class="diagram-title">
+              <span>Acceso directo en memoria</span>
+              <span class="comp-pill comp-pill--const">Constante · O(1)</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img" aria-label="Diagrama de tablas hash en memoria">
+              <rect x="14" y="28" width="180" height="58" rx="12" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+              <text x="104" y="63" text-anchor="middle" fill="#151B28" font-size="16"
+                font-family="Consolas, monospace">('C', 'mayor')</text>
+
+              <rect x="14" y="142" width="180" height="58" rx="12" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+              <text x="104" y="177" text-anchor="middle" fill="#151B28" font-size="16"
+                font-family="Consolas, monospace">'E3'</text>
+
+              <rect x="14" y="256" width="180" height="58" rx="12" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+              <text x="104" y="291" text-anchor="middle" fill="#151B28" font-size="15"
+                font-family="Consolas, monospace">muestra 18900</text>
+
+              <rect x="216" y="120" width="68" height="104" rx="14" fill="#C85A32" />
+              <text x="250" y="168" text-anchor="middle" fill="#FFFFFF" font-size="17" font-weight="800">hash()</text>
+              <text x="250" y="192" text-anchor="middle" fill="#FFE6DC" font-size="14">O(1)</text>
+
+              <path d="M 194 57 L 216 147 M 194 171 L 216 171 M 194 285 L 216 197" stroke="#C85A32"
+                stroke-width="2.5" />
+              <path d="M 284 147 L 306 57 M 284 171 L 306 171 M 284 197 L 306 285" stroke="#1D3557"
+                stroke-width="2.5" />
+
+              <rect x="306" y="28" width="180" height="58" rx="12" fill="#1D3557" />
+              <text x="396" y="63" text-anchor="middle" fill="#FFFFFF" font-size="15.5"
+                font-family="Consolas, monospace">['C3' .. 'B3']</text>
+
+              <rect x="306" y="142" width="180" height="58" rx="12" fill="#1D3557" />
+              <text x="396" y="177" text-anchor="middle" fill="#FFFFFF" font-size="14.5"
+                font-family="Consolas, monospace">grado:2 · MIDI:52</text>
+
+              <rect x="306" y="256" width="180" height="58" rx="12" fill="#1D3557" />
+              <text x="396" y="291" text-anchor="middle" fill="#FFFFFF" font-size="14.5"
+                font-family="Consolas, monospace">[('on', ch, 52)]</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 9: ALGORITMO 2 - VORAZ + HEAPMAX          -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="9" data-title="Algoritmo 2: Voraz + HeapMax" data-steps="4"
+        data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">09 · Algoritmo 2 (Optimización local) · Paso a paso</span>
+              <h2 class="slide-title">Voraz con <code>HeapMax</code>: mejor nota paso a paso</h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Cómo decide el Voraz</h3>
+              <p>En cada pulso evalúa los 7 grados hacia <em>La Folía</em> (mayor) o <em>Quintas</em> (menor)
+                maximizando <code>-(dist_obj + 0.5 · dist_ant)</code>; bajo y steel drums complementan con
+                <code>3a</code> y <code>rest</code>.</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Por qué <code>HeapMax</code> propio</h3>
+              <p>Extrae el máximo en <strong>O(log G)</strong> manteniendo el <code>indice</code> en cada nodo.
+                Descartamos reordenar toda la lista cada paso o <code>heapq</code> (solo min-heap).</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. Complejidad: Lineal · O(N) (aunque use Heap)</h3>
+              <p>El heap siempre tiene <code>G = 7</code> grados (constante), así que <code>O(N · G log G)</code> se
+                reduce a <strong>O(N)</strong> en tiempo y <strong>O(N)</strong> en memoria.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram reveal-item" data-reveal="4">
+            <div class="diagram-title">
+              <span>HeapMax de G = 7 candidatos</span>
+              <span class="comp-pill comp-pill--linear">Lineal · O(N)</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img" aria-label="HeapMax en árbol y arreglo">
+              <g stroke="#1D3557" stroke-width="2.5">
+                <line x1="250" y1="48" x2="135" y2="118" />
+                <line x1="250" y1="48" x2="365" y2="118" />
+                <line x1="135" y1="118" x2="76" y2="190" />
+                <line x1="135" y1="118" x2="194" y2="190" />
+                <line x1="365" y1="118" x2="306" y2="190" />
+                <line x1="365" y1="118" x2="424" y2="190" />
+              </g>
+              <circle cx="250" cy="48" r="27" fill="#C85A32" />
+              <text x="250" y="45" text-anchor="middle" fill="#FFFFFF" font-size="15" font-weight="800">0.0</text>
+              <text x="250" y="63" text-anchor="middle" fill="#FFE6DC" font-size="12">i=0</text>
+
+              <circle cx="135" cy="118" r="24" fill="#1D3557" />
+              <text x="135" y="115" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="700">-1.5</text>
+              <text x="135" y="132" text-anchor="middle" fill="#CBD5E1" font-size="12">i=1</text>
+
+              <circle cx="365" cy="118" r="24" fill="#1D3557" />
+              <text x="365" y="115" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="700">-1.5</text>
+              <text x="365" y="132" text-anchor="middle" fill="#CBD5E1" font-size="12">i=2</text>
+
+              <circle cx="76" cy="190" r="21" fill="#2A4A77" />
+              <text x="76" y="195" text-anchor="middle" fill="#FFFFFF" font-size="13">-3.0</text>
+              <circle cx="194" cy="190" r="21" fill="#2A4A77" />
+              <text x="194" y="195" text-anchor="middle" fill="#FFFFFF" font-size="13">-3.0</text>
+              <circle cx="306" cy="190" r="21" fill="#2A4A77" />
+              <text x="306" y="195" text-anchor="middle" fill="#FFFFFF" font-size="13">-4.5</text>
+              <circle cx="424" cy="190" r="21" fill="#2A4A77" />
+              <text x="424" y="195" text-anchor="middle" fill="#FFFFFF" font-size="13">-4.5</text>
+
+              <text x="250" y="250" text-anchor="middle" fill="#4A5366" font-size="15" font-weight="700">
+                Arreglo en memoria (hijos: 2i+1 y 2i+2)
+              </text>
+              <g font-family="Consolas, monospace" font-size="14" text-anchor="middle">
+                <rect x="26" y="266" width="64" height="44" fill="#C85A32" stroke="#FFFFFF" stroke-width="2" />
+                <text x="58" y="293" fill="#FFFFFF" font-weight="700">0.0</text>
+                <rect x="90" y="266" width="64" height="44" fill="#1D3557" stroke="#FFFFFF" stroke-width="2" />
+                <text x="122" y="293" fill="#FFFFFF">-1.5</text>
+                <rect x="154" y="266" width="64" height="44" fill="#1D3557" stroke="#FFFFFF" stroke-width="2" />
+                <text x="186" y="293" fill="#FFFFFF">-1.5</text>
+                <rect x="218" y="266" width="64" height="44" fill="#2A4A77" stroke="#FFFFFF" stroke-width="2" />
+                <text x="250" y="293" fill="#FFFFFF">-3.0</text>
+                <rect x="282" y="266" width="64" height="44" fill="#2A4A77" stroke="#FFFFFF" stroke-width="2" />
+                <text x="314" y="293" fill="#FFFFFF">-3.0</text>
+                <rect x="346" y="266" width="64" height="44" fill="#2A4A77" stroke="#FFFFFF" stroke-width="2" />
+                <text x="378" y="293" fill="#FFFFFF">-4.5</text>
+                <rect x="410" y="266" width="64" height="44" fill="#2A4A77" stroke="#FFFFFF" stroke-width="2" />
+                <text x="442" y="293" fill="#FFFFFF">-4.5</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 10: ALGORITMO 3 - BACKTRACKING CON PODA   -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="10" data-title="Algoritmo 3: Backtracking" data-steps="4"
+        data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">10 · Algoritmo 3 (Búsqueda con reglas) · Paso a paso</span>
+              <h2 class="slide-title">Backtracking con Poda (DFS + Pila)</h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Por qué necesitamos Backtracking</h3>
+              <p>Impone turnos (<code>mod 1..4</code>) y rachas máximas (<code>max_3a=2</code>, <code>max_5a=2</code>,
+                <code>max_7a=1</code>). Un voraz sin retroceso no corrige si se encierra.</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Cómo funciona y cómo poda</h3>
+              <p>Ordena ramas por menor distancia, usa pila (<code>append</code>/<code>pop</code>), corta si
+                <code>costo_acum >= mejor_costo</code> y limita a <code>max_nodos = 4000</code>.</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. Complejidad: Exponencial · O(3^N) acotada</h3>
+              <p>Mejor caso <strong>O(N)</strong>; peor caso teórico <strong>O(3^N)</strong> (3 intervalos por nota).
+                Con poda y tope 4 000 nodos termina en segundos. Espacio: <strong>O(N)</strong>.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram reveal-item" data-reveal="4">
+            <div class="diagram-title">
+              <span>Árbol con poda por costo</span>
+              <span class="comp-pill comp-pill--exp">Exponencial · O(3^N)</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img"
+              aria-label="Árbol de backtracking con rama óptima y ramas podadas">
+              <line x1="250" y1="48" x2="112" y2="140" stroke="#227A67" stroke-width="4" />
+              <line x1="250" y1="48" x2="250" y2="140" stroke="#B8372B" stroke-width="2.5" stroke-dasharray="6 4" />
+              <line x1="250" y1="48" x2="388" y2="140" stroke="#B8372B" stroke-width="2.5" stroke-dasharray="6 4" />
+
+              <line x1="112" y1="140" x2="112" y2="234" stroke="#227A67" stroke-width="4" />
+              <line x1="112" y1="234" x2="62" y2="304" stroke="#227A67" stroke-width="4" />
+              <line x1="112" y1="234" x2="162" y2="304" stroke="#B8372B" stroke-width="2.5" stroke-dasharray="5 4" />
+
+              <path d="M 148 230 Q 198 198, 148 155" fill="none" stroke="#C85A32" stroke-width="2.5"
+                stroke-dasharray="4 3" />
+              <text x="204" y="198" fill="#C85A32" font-size="15" font-weight="700">pop()</text>
+
+              <circle cx="250" cy="48" r="24" fill="#1D3557" />
+              <text x="250" y="54" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="700">Raíz</text>
+
+              <circle cx="112" cy="140" r="25" fill="#227A67" />
+              <text x="112" y="145" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="700">7a (1)</text>
+
+              <circle cx="250" cy="140" r="23" fill="#FDECEB" stroke="#B8372B" stroke-width="2.5" />
+              <text x="250" y="145" text-anchor="middle" fill="#B8372B" font-size="13" font-weight="700">3a ✕</text>
+
+              <circle cx="388" cy="140" r="23" fill="#FDECEB" stroke="#B8372B" stroke-width="2.5" />
+              <text x="388" y="145" text-anchor="middle" fill="#B8372B" font-size="13" font-weight="700">5a ✕</text>
+
+              <circle cx="112" cy="234" r="25" fill="#227A67" />
+              <text x="112" y="239" text-anchor="middle" fill="#FFFFFF" font-size="14" font-weight="700">3a (3)</text>
+
+              <circle cx="62" cy="304" r="22" fill="#227A67" />
+              <text x="62" y="309" text-anchor="middle" fill="#FFFFFF" font-size="13" font-weight="800">★ 4</text>
+
+              <circle cx="162" cy="304" r="21" fill="#FDECEB" stroke="#B8372B" stroke-width="2" />
+              <text x="162" y="309" text-anchor="middle" fill="#B8372B" font-size="12" font-weight="700">≥4 ✕</text>
+
+              <rect x="234" y="236" width="250" height="88" rx="12" fill="#FAF8F4" stroke="#E4DED3"
+                stroke-width="1.5" />
+              <text x="250" y="264" fill="#227A67" font-size="14.5" font-weight="700">● Ruta óptima guardada</text>
+              <text x="250" y="288" fill="#B8372B" font-size="14.5" font-weight="700">✕ Poda (costo ≥
+                mejor_costo)</text>
+              <text x="250" y="312" fill="#4A5366" font-size="14">Tope: max_nodos = 4000</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 11: SÍNTESIS TEMPORAL Y WAV               -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="11" data-title="Algoritmo 4: Síntesis WAV" data-steps="3"
+        data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">11 · Algoritmo 4 (Síntesis temporal) · Paso a paso</span>
+              <h2 class="slide-title">Línea de tiempo MIDI → Audio WAV</h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Cómo sincroniza 4 instrumentos</h3>
+              <p>Agrupa eventos por muestra en <code>acciones_por_muestra</code> y ordena los instantes únicos con
+                <code>sorted()</code> (algoritmo Timsort de Python).</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Por qué ordena <code>off</code> antes de <code>on</code></h3>
+              <p>Si una nota termina y otra empieza en la misma muestra, apagar primero evita notas pegadas o cortes
+                antes de llamar a <code>synth.render()</code>.</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. Complejidad: O(N log N + S)</h3>
+              <p>Ordenar los instantes de las <code>N</code> notas cuesta <strong>O(N log N)</strong>; renderizar
+                <code>S = 44 100 × seg</code> muestras en estéreo cuesta <strong>O(S)</strong> en tiempo y espacio.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram">
+            <div class="diagram-title">
+              <span>Cola temporal (44 100 Hz)</span>
+              <span class="comp-pill comp-pill--nlogn">O(N log N + S)</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img"
+              aria-label="Línea de tiempo de eventos MIDI y renderizado WAV">
+              <line x1="28" y1="88" x2="472" y2="88" stroke="#1D3557" stroke-width="4" />
+              <circle cx="70" cy="88" r="11" fill="#C85A32" />
+              <circle cx="205" cy="88" r="11" fill="#1D3557" />
+              <circle cx="340" cy="88" r="11" fill="#1D3557" />
+              <circle cx="445" cy="88" r="11" fill="#227A67" />
+
+              <text x="70" y="62" text-anchor="middle" fill="#C85A32" font-size="14" font-weight="800">t₀ = 0</text>
+              <text x="205" y="62" text-anchor="middle" fill="#1D3557" font-size="14" font-weight="800">t₁ =
+                18900</text>
+              <text x="340" y="62" text-anchor="middle" fill="#1D3557" font-size="14" font-weight="800">t₂ =
+                37800</text>
+              <text x="445" y="62" text-anchor="middle" fill="#227A67" font-size="14" font-weight="800">tₙ = S</text>
+
+              <rect x="75" y="122" width="260" height="64" rx="12" fill="#FCECE5" stroke="#C85A32" stroke-width="2" />
+              <text x="205" y="148" text-anchor="middle" fill="#B8372B" font-size="14.5" font-weight="800">1º note_off
+                (prioridad 0)</text>
+              <text x="205" y="172" text-anchor="middle" fill="#227A67" font-size="14.5" font-weight="800">2º note_on
+                (prioridad 1)</text>
+
+              <rect x="28" y="212" width="444" height="106" rx="14" fill="#1D3557" />
+              <text x="250" y="246" text-anchor="middle" fill="#FFFFFF" font-size="16" font-weight="800"
+                font-family="Consolas, monospace">
+                synth.render(left, right, count = tᵢ₊₁ - tᵢ)
+              </text>
+              <text x="250" y="276" text-anchor="middle" fill="#CBD5E1" font-size="15">
+                SoundFont FluidR3_GM.sf2 → stereo PCM 16-bit
+              </text>
+              <text x="250" y="302" text-anchor="middle" fill="#F6B352" font-size="15" font-weight="700">
+                Para 10 s: S = 441 000 muestras estéreo
+              </text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 12: TRAZA 1 - BROWNIANO (4 PASOS)         -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="12" data-title="Traza 1: Browniano" data-steps="4" data-renderer="brownian">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">12 · Traza en vivo (1/3) · Movimiento Browniano</span>
+              <h2 class="slide-title">De saltos aleatorios a notas en <code>C mayor</code></h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="trace-layout">
+          <div class="card trace-visual">
+            <div class="trace-meta-row">
+              <span class="trace-pill" id="b-step-badge">Paso 0 / 4</span>
+              <span class="trace-formula" id="b-formula">inicio = 0.14</span>
+            </div>
+
+            <svg id="b-svg" viewBox="0 0 620 230" class="trace-svg" role="img"
+              aria-label="Gráfica de caminata browniana y escala"></svg>
+
+            <div class="trace-state-box">
+              <div class="state-label">Salida <code>canal_bajo</code>:</div>
+              <div class="chip-strip" id="b-output"></div>
+            </div>
+            <p class="trace-note" id="b-note"></p>
+          </div>
+
+          <div class="ide-column">
+            <div class="code-panel">
+              <div class="code-panel__header">
+                <div class="ide-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="ide-file">PROYECTO_FINAL_MUSICA_ESTOCASTICA.py · L79–89</span>
+                <span class="ide-line-badge" id="b-line-badge">Línea 01</span>
+              </div>
+              <div class="code-body" id="b-code">
+                <div class="code-line" data-line="1"><span class="ln">01</span><span class="ptr">▶</span><span
+                    class="src">valores = [inicio]</span></div>
+                <div class="code-line" data-line="2"><span class="ln">02</span><span class="ptr">▶</span><span
+                    class="src">actual = inicio</span></div>
+                <div class="code-line" data-line="3"><span class="ln">03</span><span class="ptr">▶</span><span
+                    class="src"><span class="tok-kw">for</span> _ <span class="tok-kw">in</span> <span
+                      class="tok-fn">range</span>(n - <span class="tok-num">1</span>):</span></div>
+                <div class="code-line" data-line="4"><span class="ln">04</span><span class="ptr">▶</span><span
+                    class="src"> actual += random.gauss(<span class="tok-num">0.0</span>, paso)</span></div>
+                <div class="code-line" data-line="5"><span class="ln">05</span><span class="ptr">▶</span><span
+                    class="src"> valores.append(actual)</span></div>
+                <div class="code-line" data-line="6"><span class="ln">06</span><span class="ptr">▶</span><span
+                    class="src">idx = <span class="tok-fn">int</span>(x * <span class="tok-num">100</span>) % <span
+                      class="tok-num">6</span></span></div>
+                <div class="code-line" data-line="7"><span class="ln">07</span><span class="ptr">▶</span><span
+                    class="src">canal_bajo.append((escala[idx], <span class="tok-num">1.0</span>))</span></div>
+              </div>
+              <div class="ide-explain" id="b-explain"></div>
+            </div>
+
+            <div class="var-panel">
+              <div class="var-panel__title">Variables en memoria</div>
+              <div class="var-grid" id="b-vars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 13: TRAZA 2 - VORAZ + HEAPMAX (4 PASOS)   -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="13" data-title="Traza 2: Voraz + HeapMax" data-steps="4"
+        data-renderer="greedy">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">13 · Traza en vivo (2/3) · Voraz + HeapMax</span>
+              <h2 class="slide-title">Selección con <code>HeapMax</code> (Progresión La Folía)</h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="trace-layout">
+          <div class="card trace-visual">
+            <div class="trace-meta-row">
+              <span class="trace-pill" id="g-step-badge">Paso 0 / 4</span>
+              <span class="trace-formula" id="g-formula">grado_actual = 0 (C3)</span>
+            </div>
+
+            <svg id="g-svg" viewBox="0 0 620 225" class="trace-svg" role="img"
+              aria-label="Árbol binario HeapMax de 7 nodos"></svg>
+
+            <div class="trace-state-box">
+              <div class="dual-strip">
+                <div class="dual-row">
+                  <span class="dual-label">Guitarra:</span>
+                  <div class="chip-strip" id="g-out-guitar"></div>
+                </div>
+                <div class="dual-row">
+                  <span class="dual-label">Bajo 3a:</span>
+                  <div class="chip-strip" id="g-out-bass"></div>
+                </div>
+              </div>
+            </div>
+            <p class="trace-note" id="g-note"></p>
+          </div>
+
+          <div class="ide-column">
+            <div class="code-panel">
+              <div class="code-panel__header">
+                <div class="ide-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="ide-file">PROYECTO_FINAL_MUSICA_ESTOCASTICA.py · L262–281</span>
+                <span class="ide-line-badge" id="g-line-badge">Línea 01</span>
+              </div>
+              <div class="code-body" id="g-code">
+                <div class="code-line" data-line="1"><span class="ln">01</span><span class="ptr">▶</span><span
+                    class="src">obj = prog[paso % <span class="tok-fn">len</span>(prog)] % <span
+                      class="tok-num">7</span></span></div>
+                <div class="code-line" data-line="2"><span class="ln">02</span><span class="ptr">▶</span><span
+                    class="src"><span class="tok-kw">for</span> idx, nota <span class="tok-kw">in</span> <span
+                      class="tok-fn">enumerate</span>(escala):</span></div>
+                <div class="code-line" data-line="3"><span class="ln">03</span><span class="ptr">▶</span><span
+                    class="src"> p = -(dist_obj + <span class="tok-num">0.5</span> * dist_ant)</span></div>
+                <div class="code-line" data-line="4"><span class="ln">04</span><span class="ptr">▶</span><span
+                    class="src"> cands.append(<span class="tok-fn">NodoHeap</span>((nota, idx), p))</span></div>
+                <div class="code-line" data-line="5"><span class="ln">05</span><span class="ptr">▶</span><span
+                    class="src">cola = <span class="tok-fn">HeapMax</span>(cands)</span></div>
+                <div class="code-line" data-line="6"><span class="ln">06</span><span class="ptr">▶</span><span
+                    class="src">mejor = cola.extraer_maximo()</span></div>
+                <div class="code-line" data-line="7"><span class="ln">07</span><span class="ptr">▶</span><span
+                    class="src">res.append(mejor.nota); ant = mejor.idx</span></div>
+              </div>
+              <div class="ide-explain" id="g-explain"></div>
+            </div>
+
+            <div class="var-panel">
+              <div class="var-panel__title">Variables en memoria</div>
+              <div class="var-grid" id="g-vars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 14: TRAZA 3 - BACKTRACKING (5 PASOS)      -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="14" data-title="Traza 3: Backtracking" data-steps="5"
+        data-renderer="backtracking">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">14 · Traza en vivo (3/3) · Backtracking con Poda</span>
+              <h2 class="slide-title">Árbol DFS y poda por costo (Bajo: <code>[E3, D3, A3]</code>)</h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="trace-layout">
+          <div class="card trace-visual">
+            <div class="trace-meta-row">
+              <span class="trace-pill" id="bt-step-badge">Paso 0 / 5</span>
+              <span class="trace-formula" id="bt-best">mejor_costo = ∞</span>
+            </div>
+
+            <svg id="bt-svg" viewBox="0 0 620 230" class="trace-svg" role="img"
+              aria-label="Árbol de búsqueda DFS con poda"></svg>
+
+            <div class="trace-state-box">
+              <div class="state-label">Pila <code>secuencia_actual</code>:</div>
+              <div class="chip-strip" id="bt-stack"></div>
+            </div>
+            <p class="trace-note" id="bt-note"></p>
+          </div>
+
+          <div class="ide-column">
+            <div class="code-panel">
+              <div class="code-panel__header">
+                <div class="ide-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+                <span class="ide-file">PROYECTO_FINAL_MUSICA_ESTOCASTICA.py · L434–480</span>
+                <span class="ide-line-badge" id="bt-line-badge">Línea 02</span>
+              </div>
+              <div class="code-body" id="bt-code">
+                <div class="code-line" data-line="1"><span class="ln">01</span><span class="ptr">▶</span><span
+                    class="src"><span class="tok-kw">if</span> costo_acum >= mejor_costo: <span
+                      class="tok-kw">return</span></span></div>
+                <div class="code-line" data-line="2"><span class="ln">02</span><span class="ptr">▶</span><span
+                    class="src"><span class="tok-kw">if</span> paso == n_pasos:</span></div>
+                <div class="code-line" data-line="3"><span class="ln">03</span><span class="ptr">▶</span><span
+                    class="src"> mejor_costo = costo_acum; guardar()</span></div>
+                <div class="code-line" data-line="4"><span class="ln">04</span><span class="ptr">▶</span><span
+                    class="src">validos = restricciones(r3, r5, r7)</span></div>
+                <div class="code-line" data-line="5"><span class="ln">05</span><span class="ptr">▶</span><span
+                    class="src"><span class="tok-kw">for</span> dist, _, etiq, g <span class="tok-kw">in</span>
+                    ordenados:</span></div>
+                <div class="code-line" data-line="6"><span class="ln">06</span><span class="ptr">▶</span><span
+                    class="src"> <span class="tok-kw">if</span> costo_acum + dist >= mejor_costo:</span></div>
+                <div class="code-line" data-line="7"><span class="ln">07</span><span class="ptr">▶</span><span
+                    class="src"> <span class="tok-kw">continue</span> <span class="tok-com"># Poda por
+                      cota</span></span></div>
+                <div class="code-line" data-line="8"><span class="ln">08</span><span class="ptr">▶</span><span
+                    class="src"> actual.append(nota); dfs(...); pop()</span></div>
+              </div>
+              <div class="ide-explain" id="bt-explain"></div>
+            </div>
+
+            <div class="var-panel">
+              <div class="var-panel__title">Variables en memoria</div>
+              <div class="var-grid" id="bt-vars"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 15: CASOS LÍMITE (2 PASOS)                -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="15" data-title="Casos límite" data-steps="2" data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">15 · Robustez del código · Paso a paso</span>
+              <h2 class="slide-title">Casos límite: ¿qué pasa y qué maneja?</h2>
+            </div>
+            <span class="step-cue">Clic o → para revelar</span>
+          </div>
+        </header>
+
+        <div class="edge-grid">
+          <article class="card edge-card reveal-item" data-reveal="1">
+            <div class="edge-top">
+              <h3>Duración &lt; 3 s o &gt; 60 s</h3>
+              <span class="status-badge status-badge--ok">Manejado</span>
+            </div>
+            <p>Lanza <code>ValueError</code> inmediatamente antes de generar notas o audio.</p>
+          </article>
+
+          <article class="card edge-card reveal-item" data-reveal="1">
+            <div class="edge-top">
+              <h3>Nota o modo inválido</h3>
+              <span class="status-badge status-badge--ok">Manejado</span>
+            </div>
+            <p>Valida tuplas <code>notas_validas</code> y <code>modos_validos</code>; rechaza minúsculas o bemoles.</p>
+          </article>
+
+          <article class="card edge-card reveal-item" data-reveal="1">
+            <div class="edge-top">
+              <h3>Lista o Heap vacío</h3>
+              <span class="status-badge status-badge--ok">Manejado</span>
+            </div>
+            <p><code>poda_de_backtracking</code> devuelve <code>[]</code>; <code>extraer_maximo</code> devuelve
+              <code>None</code>.</p>
+          </article>
+
+          <article class="card edge-card reveal-item" data-reveal="1">
+            <div class="edge-top">
+              <h3>Duración máxima (60 s)</h3>
+              <span class="status-badge status-badge--ok">Manejado</span>
+            </div>
+            <p>Con ~140 notas, <code>max_nodos = 4000</code> evita congelarse y usa respaldo de <code>3a</code>.</p>
+          </article>
+
+          <article class="card edge-card reveal-item" data-reveal="1">
+            <div class="edge-top">
+              <h3>Eventos fuera de tiempo</h3>
+              <span class="status-badge status-badge--ok">Manejado</span>
+            </div>
+            <p>Recorta las muestras al tamaño del buffer e imprime un aviso en consola.</p>
+          </article>
+
+          <article class="card edge-card reveal-item" data-reveal="2">
+            <div class="edge-top">
+              <h3>Texto en duración o sin .sf2</h3>
+              <span class="status-badge status-badge--no">No manejado</span>
+            </div>
+            <p>No usa <code>try/except</code>: falla en <code>int(input(...))</code> o al abrir
+              <code>FluidR3_GM.sf2</code>.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 16: COMPLEJIDAD INTERACTIVA (5 PASOS)     -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="16" data-title="Complejidad" data-steps="5" data-renderer="complexity">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">16 · Rendimiento paso a paso · Ejemplo N = 23 notas (10 s)</span>
+              <h2 class="slide-title">Análisis de complejidad: tiempo, espacio y crecimiento</h2>
+            </div>
+            <span class="step-cue">1 clic = 1 curva</span>
+          </div>
+        </header>
+
+        <div class="complexity-layout">
+          <div class="card table-card">
+            <table class="comp-table">
+              <thead>
+                <tr>
+                  <th>Etapa</th>
+                  <th>Tipo</th>
+                  <th>Tiempo</th>
+                  <th>Espacio</th>
+                  <th>Con 10 s (N=23)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="comp-row" data-comp-step="1">
+                  <td>Escalas (<code>dict</code>)</td>
+                  <td><span class="comp-pill comp-pill--const">Constante</span></td>
+                  <td class="nowrap"><code>O(1)</code></td>
+                  <td class="nowrap"><code>O(1)</code></td>
+                  <td>168 ops fijas</td>
+                </tr>
+                <tr class="comp-row" data-comp-step="2">
+                  <td>Browniano (4x)</td>
+                  <td><span class="comp-pill comp-pill--linear">Lineal</span></td>
+                  <td class="nowrap"><code>O(N)</code></td>
+                  <td class="nowrap"><code>O(N)</code></td>
+                  <td>~92 pasos totales</td>
+                </tr>
+                <tr class="comp-row" data-comp-step="3">
+                  <td>Voraz + <code>HeapMax</code></td>
+                  <td><span class="comp-pill comp-pill--linear">Lineal (G=7)</span></td>
+                  <td class="nowrap"><code>O(N)</code></td>
+                  <td class="nowrap"><code>O(N)</code></td>
+                  <td>23 heaps de 7</td>
+                </tr>
+                <tr class="comp-row" data-comp-step="4">
+                  <td>Síntesis WAV</td>
+                  <td><span class="comp-pill comp-pill--nlogn">N log N + S</span></td>
+                  <td class="nowrap"><code>O(N log N + S)</code></td>
+                  <td class="nowrap"><code>O(N + S)</code></td>
+                  <td>~104 + 441k</td>
+                </tr>
+                <tr class="comp-row" data-comp-step="5">
+                  <td>Backtracking</td>
+                  <td><span class="comp-pill comp-pill--exp">Exponencial</span></td>
+                  <td class="nowrap"><code>O(N)..O(3^N)</code></td>
+                  <td class="nowrap"><code>O(N)</code></td>
+                  <td>Tope 4 000 nodos</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="card chart-card">
+            <div class="diagram-title">¿Cómo crece cada curva?</div>
+            <svg viewBox="0 0 380 300" class="svg-full" role="img"
+              aria-label="Gráfica comparativa de complejidad temporal">
+              <line x1="46" y1="252" x2="356" y2="252" stroke="#151B28" stroke-width="2.5" />
+              <line x1="46" y1="252" x2="46" y2="20" stroke="#151B28" stroke-width="2.5" />
+              <text x="200" y="284" text-anchor="middle" fill="#4A5366" font-size="14" font-weight="700">Notas por canal
+                (N)</text>
+              <text x="16" y="138" transform="rotate(-90 16 138)" text-anchor="middle" fill="#4A5366" font-size="14"
+                font-weight="700">Trabajo</text>
+
+              <g class="curve-group" data-curve-step="5">
+                <line x1="46" y1="84" x2="356" y2="84" stroke="#C85A32" stroke-width="2.2" stroke-dasharray="6 4" />
+                <text x="354" y="75" text-anchor="end" fill="#C85A32" font-size="13" font-weight="800">Tope: max_nodos =
+                  4000</text>
+                <path d="M 46 248 Q 128 244, 174 160 T 212 22" fill="none" stroke="#B8372B" stroke-width="4" />
+                <text x="220" y="36" fill="#B8372B" font-size="14" font-weight="800">O(3^N) sin poda</text>
+              </g>
+
+              <g class="curve-group" data-curve-step="1">
+                <line x1="46" y1="234" x2="350" y2="234" stroke="#64748B" stroke-width="3.2" />
+                <text x="350" y="226" text-anchor="end" fill="#4A5366" font-size="13" font-weight="800">O(1)
+                  Constante</text>
+              </g>
+
+              <g class="curve-group" data-curve-step="2,3">
+                <path d="M 46 248 L 350 182" fill="none" stroke="#227A67" stroke-width="3.5" />
+                <text x="350" y="174" text-anchor="end" fill="#227A67" font-size="13" font-weight="800">O(N)
+                  Lineal</text>
+              </g>
+
+              <g class="curve-group" data-curve-step="4">
+                <path d="M 46 248 Q 198 202, 350 134" fill="none" stroke="#1D3557" stroke-width="3.5" />
+                <text x="350" y="126" text-anchor="end" fill="#1D3557" font-size="13" font-weight="800">O(N log
+                  N)</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="step-banner" id="comp-caption">
+          Presiona avanzar para explicar cada tipo de complejidad paso a paso.
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 17: CONCLUSIÓN (3 PASOS)                  -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="17" data-title="Conclusión" data-steps="3" data-renderer="reveal">
+        <header class="slide-header">
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">17 · Aprendizajes clave · Paso a paso</span>
+              <h2 class="slide-title">Conclusiones</h2>
+            </div>
+            <span class="step-cue">Clic o → por punto</span>
+          </div>
+        </header>
+
+        <div class="conclusions-grid">
+          <article class="card conclusion-card reveal-item" data-reveal="1">
+            <span class="conclusion-num">01</span>
+            <h3>El algoritmo da forma al azar</h3>
+            <p>Partiendo de la misma base browniana, cada enfoque produce un resultado musical audible distinto.</p>
+          </article>
+
+          <article class="card conclusion-card conclusion-card--accent reveal-item" data-reveal="2">
+            <span class="conclusion-num">02</span>
+            <h3>Estructura correcta, costo bajo</h3>
+            <p><code>dict</code> (<code>O(1)</code>), <code>HeapMax</code> fijo (<code>O(N)</code>) y pila DFS resuelven
+              escalas, prioridades y reglas sin fricción.</p>
+          </article>
+
+          <article class="card conclusion-card reveal-item" data-reveal="3">
+            <span class="conclusion-num">03</span>
+            <h3>Poda y cota salvan a <code>O(3^N)</code></h3>
+            <p>Ordenar ramas por distancia, podar costos altos y limitar a 4 000 nodos vuelve viable el Backtracking.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 18: CIERRE / PREGUNTAS                    -->
+      <!-- ===================================================== -->
+      <section class="slide slide--motif" data-slide="18" data-title="Cierre">
+        <div class="closing-layout">
+          <svg viewBox="0 0 360 90" class="closing-wave" aria-hidden="true">
+            <path d="M 10 45 Q 55 10, 100 45 T 190 45 T 280 45 T 350 45" fill="none" stroke="#C85A32" stroke-width="5"
+              stroke-linecap="round" />
+            <circle cx="100" cy="45" r="7" fill="#1D3557" />
+            <circle cx="190" cy="45" r="7" fill="#1D3557" />
+            <circle cx="280" cy="45" r="7" fill="#227A67" />
+          </svg>
+
+          <h2 class="closing-title">¿Preguntas?</h2>
+          <p class="closing-sub">
+            <strong>Amelia Enora Marceline Chavez B.</strong> · <strong>Fernando Hernandez</strong>
+          </p>
+
+          <div class="closing-outputs" role="group" aria-label="Escuchar demos WAV generados">
+            <button type="button" class="wav-pill wav-pill--btn" data-wav="../proyecto_final/aleatorio_bruto.wav">▶
+              aleatorio_bruto.wav</button>
+            <button type="button" class="wav-pill wav-pill--btn" data-wav="../proyecto_final/voraz.wav">▶
+              voraz.wav</button>
+            <button type="button" class="wav-pill wav-pill--btn" data-wav="../proyecto_final/backtracking.wav">▶
+              backtracking.wav</button>
+          </div>
+          <p class="audio-status" id="audio-status" hidden></p>
+
+          <button type="button" class="hc-launch-btn" id="btn-hardcore-final">
+            📚 Abrir Biblioteca Hardcore — Enciclopedia y Simulador (B)
+          </button>
+
+          <p class="closing-hint">
+            Atajos: ← / → o clic · <strong>P</strong> animar · <strong>O</strong> vista · <strong>N</strong> notas ·
+            <strong>B</strong> biblioteca hardcore · <strong>F</strong> pantalla completa
+          </p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Barra de controles inferiores -->
+  <nav class="hud" aria-label="Controles de navegación">
+    <div class="hud-left">
+      <button type="button" class="hud-btn" id="btn-prev" aria-label="Diapositiva o paso anterior">← Anterior</button>
+      <div class="hud-counter" id="slide-counter">01 / 18</div>
+      <div class="step-dots" id="step-dots" aria-label="Pasos de la diapositiva"></div>
+      <span class="hud-step-label" id="hud-step-label"></span>
+      <button type="button" class="hud-btn hud-btn--primary" id="btn-next"
+        aria-label="Siguiente diapositiva o paso">Siguiente →</button>
+    </div>
+
+    <div class="hud-right">
+      <button type="button" class="hud-btn" id="btn-overview" title="Vista general (O)">Vista (O)</button>
+      <button type="button" class="hud-btn" id="btn-notes" title="Notas del orador (N)">Notas (N)</button>
+      <button type="button" class="hud-btn hud-btn--hc" id="btn-hardcore" title="Biblioteca Hardcore (B)">Biblioteca
+        (B)</button>
+      <button type="button" class="hud-btn" id="btn-fullscreen" title="Pantalla completa (F)">Pantalla (F)</button>
+    </div>
+  </nav>
+
+  <!-- Panel opcional de notas del orador (oculto por defecto) -->
+  <aside id="notes-panel" class="notes-panel" hidden aria-label="Notas del orador">
+    <div class="notes-panel__header">
+      <strong>Notas del orador</strong>
+      <button type="button" class="notes-close" id="btn-notes-close" aria-label="Cerrar notas">✕</button>
+    </div>
+    <p id="notes-text" class="notes-panel__body"></p>
+  </aside>
+
+  <!-- Vista general de diapositivas (tecla O) -->
+  <div id="overview-modal" class="overview-modal" hidden role="dialog" aria-modal="true"
+    aria-label="Vista general de diapositivas">
+    <div class="overview-modal__inner">
+      <div class="overview-modal__header">
+        <h2>Vista general de diapositivas</h2>
+        <button type="button" class="hud-btn" id="btn-overview-close">Cerrar (Esc)</button>
+      </div>
+      <div class="overview-grid" id="overview-grid"></div>
+    </div>
+  </div>
+
+  <!-- BIBLIOTECA HARDCORE: ENCICLOPEDIA TÉCNICA + SIMULADOR EN VIVO -->
+  <div id="hardcore-modal" class="hc-modal" hidden role="dialog" aria-modal="true"
+    aria-label="Biblioteca Hardcore del proyecto">
+    <div class="hc-modal__inner">
+      <header class="hc-header">
+        <div>
+          <span class="hc-kicker">Referencia técnica exhaustiva · 679 líneas de proyecto + 3 917 de sintetizador</span>
+          <h2>Biblioteca Hardcore — Música Estocástica</h2>
+        </div>
+        <div class="hc-header__actions">
+          <span class="hc-count-badge" id="hc-count-badge">36 fichas</span>
+          <button type="button" class="hud-btn" id="btn-hardcore-close">Cerrar (Esc)</button>
+        </div>
+      </header>
+
+      <!-- Barra de búsqueda instantánea + filtros por categoría -->
+      <div class="hc-toolbar">
+        <div class="hc-search-wrap">
+          <label for="hc-search" class="sr-only">Buscar en la biblioteca técnica</label>
+          <input type="search" id="hc-search" class="hc-search"
+            placeholder="Buscar función, variable, fórmula, MIDI, complejidad (ej. hundir, Folía, 0xC0, 240N, 3^N, clip)..."
+            autocomplete="off" />
+        </div>
+        <div class="hc-tabs" id="hc-tabs" role="tablist" aria-label="Filtrar biblioteca técnica">
+          <button type="button" class="hc-tab is-active" data-hc-tab="all" role="tab" aria-selected="true">Todo</button>
+          <button type="button" class="hc-tab" data-hc-tab="simulador" role="tab" aria-selected="false">⚡ Simulador y
+            Mapa</button>
+          <button type="button" class="hc-tab" data-hc-tab="algoritmos" role="tab"
+            aria-selected="false">Algoritmos</button>
+          <button type="button" class="hc-tab" data-hc-tab="estructuras" role="tab"
+            aria-selected="false">Estructuras</button>
+          <button type="button" class="hc-tab" data-hc-tab="matematicas" role="tab" aria-selected="false">Matemáticas y
+            Audio</button>
+          <button type="button" class="hc-tab" data-hc-tab="complejidad" role="tab" aria-selected="false">Complejidad
+            Exacta</button>
+          <button type="button" class="hc-tab" data-hc-tab="radiografia" role="tab" aria-selected="false">Radiografía
+            Código</button>
+          <button type="button" class="hc-tab" data-hc-tab="librerias" role="tab" aria-selected="false">Librerías y
+            SF2</button>
+          <button type="button" class="hc-tab" data-hc-tab="defensa" role="tab" aria-selected="false">🎯 Defensa /
+            Q&amp;A</button>
+        </div>
+      </div>
+
+      <!-- Bloque interactivo: Simulador en vivo con las fórmulas exactas del proyecto -->
+      <section class="hc-sim-panel" id="hc-sim-panel" data-hc-block="simulador">
+        <div class="hc-card__head">
+          <span class="hc-cat">Laboratorio interactivo en tiempo real · Fórmulas exactas del código</span>
+          <span class="comp-pill comp-pill--nlogn">BPM = 140 · Octava = 3 · 44 100 Hz</span>
+        </div>
+        <h3>Calculadora en vivo: Escala, MIDI, Operaciones y Tamaño WAV</h3>
+
+        <div class="hc-sim-controls">
+          <label class="hc-sim-field">
+            <span>Duración (<code>3..60 s</code>): <strong id="sim-dur-val">10 s</strong></span>
+            <input type="range" id="sim-dur" min="3" max="60" value="10" />
+          </label>
+          <label class="hc-sim-field">
+            <span>Tónica (<code>notas_validas</code>):</span>
+            <select id="sim-note">
+              <option value="C" selected>C (Do)</option>
+              <option value="C#">C#</option>
+              <option value="D">D (Re)</option>
+              <option value="D#">D#</option>
+              <option value="E">E (Mi)</option>
+              <option value="F">F (Fa)</option>
+              <option value="F#">F#</option>
+              <option value="G">G (Sol)</option>
+              <option value="G#">G#</option>
+              <option value="A">A (La)</option>
+              <option value="A#">A#</option>
+              <option value="B">B (Si)</option>
+            </select>
+          </label>
+          <label class="hc-sim-field">
+            <span>Modo (<code>modos_validos</code>):</span>
+            <select id="sim-mode">
+              <option value="mayor" selected>mayor (La Folía)</option>
+              <option value="menor">menor (Quintas desc.)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="hc-sim-results" id="sim-results"></div>
+
+        <div class="hc-audio-bar">
+          <span class="hc-audio-label">Escuchar archivos generados en <code>proyecto_final/</code>:</span>
+          <button type="button" class="wav-pill wav-pill--btn wav-pill--sm"
+            data-wav="../proyecto_final/aleatorio_bruto.wav">▶ aleatorio_bruto.wav</button>
+          <button type="button" class="wav-pill wav-pill--btn wav-pill--sm" data-wav="../proyecto_final/voraz.wav">▶
+            voraz.wav</button>
+          <button type="button" class="wav-pill wav-pill--btn wav-pill--sm"
+            data-wav="../proyecto_final/backtracking.wav">▶ backtracking.wav</button>
+        </div>
+      </section>
+
+      <!-- Mapa arquitectónico completo -->
+      <section class="hc-arch-panel" id="hc-arch-panel" data-hc-block="simulador">
+        <div class="hc-card__head">
+          <span class="hc-cat">Arquitectura completa de punta a punta (L1–L679)</span>
+          <span class="comp-pill comp-pill--exp">Teórica: Θ(3^N + N log N + S) · Práctica: O(N log N + S)</span>
+        </div>
+        <h3>Mapa completo de variables, estructuras, funciones y archivos</h3>
+
+        <svg viewBox="0 0 1060 225" class="hc-arch-svg" role="img"
+          aria-label="Mapa de conexión completo de variables y archivos">
+          <rect x="10" y="70" width="165" height="84" rx="12" fill="#FCECE5" stroke="#C85A32" stroke-width="2" />
+          <text x="92" y="96" text-anchor="middle" fill="#C85A32" font-size="14" font-weight="800">1. Entradas ·
+            O(1)</text>
+          <text x="92" y="118" text-anchor="middle" fill="#151B28" font-size="12.5"
+            font-family="Consolas, monospace">duracion (3..60)</text>
+          <text x="92" y="138" text-anchor="middle" fill="#151B28" font-size="12.5"
+            font-family="Consolas, monospace">nota · modo → escala</text>
+
+          <line x1="175" y1="112" x2="215" y2="112" stroke="#1D3557" stroke-width="2.5" />
+
+          <rect x="215" y="64" width="205" height="96" rx="12" fill="#E6F4F0" stroke="#227A67" stroke-width="2" />
+          <text x="317" y="90" text-anchor="middle" fill="#227A67" font-size="14" font-weight="800">2. Browniano ·
+            O(N)</text>
+          <text x="317" y="112" text-anchor="middle" fill="#151B28" font-size="12" font-family="Consolas, monospace">4 ×
+            random.gauss + % 6</text>
+          <text x="317" y="132" text-anchor="middle" fill="#1D3557" font-size="12"
+            font-family="Consolas, monospace">valors_aislados_*</text>
+          <text x="317" y="150" text-anchor="middle" fill="#4A5366" font-size="11.5">canales_config (bruto)</text>
+
+          <path d="M 420 112 L 475 38 M 420 112 L 475 112 M 420 112 L 475 186" stroke="#1D3557" stroke-width="2.5"
+            fill="none" />
+
+          <rect x="475" y="12" width="265" height="52" rx="11" fill="#FFFFFF" stroke="#1D3557" stroke-width="2" />
+          <text x="607" y="34" text-anchor="middle" fill="#1D3557" font-size="13.5" font-weight="800">Rama A: Sin
+            optimización · O(N)</text>
+          <text x="607" y="53" text-anchor="middle" fill="#4A5366" font-size="12"
+            font-family="Consolas, monospace">canales_config → aleatorio_bruto.wav</text>
+
+          <rect x="475" y="84" width="265" height="56" rx="11" fill="#FFFFFF" stroke="#227A67" stroke-width="2" />
+          <text x="607" y="106" text-anchor="middle" fill="#227A67" font-size="13.5" font-weight="800">Rama B: Voraz +
+            HeapMax · O(N)</text>
+          <text x="607" y="126" text-anchor="middle" fill="#4A5366" font-size="12"
+            font-family="Consolas, monospace">Folía/Quintas + 3a → voraz.wav</text>
+
+          <rect x="475" y="158" width="265" height="56" rx="11" fill="#FCECE5" stroke="#C85A32" stroke-width="2" />
+          <text x="607" y="180" text-anchor="middle" fill="#C85A32" font-size="13.5" font-weight="800">Rama C:
+            Backtracking · O(3^N) ≤4000</text>
+          <text x="607" y="200" text-anchor="middle" fill="#4A5366" font-size="12" font-family="Consolas, monospace">mod
+            1..4 + poda → backtracking.wav</text>
+
+          <path d="M 740 38 L 795 112 M 740 112 L 795 112 M 740 186 L 795 112" stroke="#1D3557" stroke-width="2.5"
+            fill="none" />
+
+          <rect x="795" y="48" width="255" height="128" rx="14" fill="#1D3557" />
+          <text x="922" y="78" text-anchor="middle" fill="#FFFFFF" font-size="14.5" font-weight="800">3. Envoltorio
+            WAV</text>
+          <text x="922" y="100" text-anchor="middle" fill="#F6B352" font-size="12.5" font-weight="700">O(N log N +
+            S)</text>
+          <text x="922" y="123" text-anchor="middle" fill="#CBD5E1" font-size="12"
+            font-family="Consolas, monospace">0xC0 + mapa_midi + sorted()</text>
+          <text x="922" y="143" text-anchor="middle" fill="#CBD5E1" font-size="12"
+            font-family="Consolas, monospace">meltysynth + numpy PCM16</text>
+          <text x="922" y="163" text-anchor="middle" fill="#98C379" font-size="12" font-family="Consolas, monospace">→ 3
+            archivos .wav estéreo</text>
+        </svg>
+
+        <p class="hc-summary-line">
+          <strong>Cota global exacta (<code>ANALISIS_DE_COMPLEJIDAD.txt</code>):</strong> teóricamente el programa
+          completo es <code>Θ(3^N + N log N + S) = Θ(3^N)</code> por las 3 decisiones por pulso en Backtracking; en
+          ejecución real, la poda <code>Branch &amp; Bound</code> más el tope duro <code>max_nodos = 4000</code> acotan
+          esa búsqueda a una constante práctica y el trabajo dominante pasa a ser la síntesis de audio
+          <code>O(N log N + S)</code>.
+        </p>
+      </section>
+
+      <!-- Tarjetas enciclopédicas renderizadas desde el catálogo completo en app.js -->
+      <div class="hc-grid" id="hc-grid"></div>
+      <p class="hc-empty" id="hc-empty" hidden>No hay fichas que coincidan con tu búsqueda.</p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
