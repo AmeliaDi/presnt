@@ -107,30 +107,254 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 2: CONTEXTO MUSICAL (RESERVADA)           -->
+      <!-- DIAPOSITIVA 2: CONTEXTO MUSICAL (1/2) - XENAKIS       -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="2" data-title="Contexto musical">
+      <section class="slide" data-slide="2" data-title="Contexto: Iannis Xenakis" data-steps="3"
+        data-renderer="reveal">
         <header class="slide-header">
-          <span class="slide-kicker">02 · Fundamento</span>
-          <h2 class="slide-title">Contexto musical</h2>
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">02 · Contexto musical (1/2) · Paso a paso</span>
+              <h2 class="slide-title">Música estocástica: Iannis Xenakis (años 50)</h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
         </header>
 
-        <!-- Reemplazar este bloque con la diapositiva de contexto musical -->
-        <div class="placeholder-frame">
-          <div class="placeholder-icon placeholder-icon--float" aria-hidden="true">♪</div>
-          <p class="placeholder-marker">[PEGAR CONTEXTO MUSICAL AQUÍ]</p>
-          <p class="placeholder-hint">
-            Espacio reservado para lo musical, que no se te olvide enora del futuro.
-          </p>
+        <div class="decision-layout">
+          <div class="decision-points">
+            <article class="decision-box reveal-item" data-reveal="1">
+              <h3>1. Modelos físicos y probabilidad</h3>
+              <p>Desarrollada por <strong>Iannis Xenakis</strong> en los <strong>50s</strong> partiendo de la física de
+                la naturaleza (ecuaciones de gases y <strong>movimiento browniano</strong> de partículas).</p>
+            </article>
+            <article class="decision-box decision-box--good reveal-item" data-reveal="2">
+              <h3>2. Formación «azarosa» (procesos estocásticos)</h3>
+              <p>Notas, características y progresiones no las dicta una por una un compositor ubicuo: emergen de la
+                <strong>teoría de la probabilidad</strong>.</p>
+            </article>
+            <article class="decision-box decision-box--alt reveal-item" data-reveal="3">
+              <h3>3. <em>Metastaseis</em> e inspiración directa</h3>
+              <p>Surge como respuesta a la rigidez de la <strong>música serial</strong>. Aunque nuestro sistema es más
+                sencillo, nace directamente de esta idea.</p>
+            </article>
+          </div>
+
+          <div class="card decision-diagram">
+            <div class="diagram-title">
+              <span>Serialismo rígido vs. <em>Metastaseis</em> (Xenakis)</span>
+              <span class="comp-pill comp-pill--exp">Años 1950</span>
+            </div>
+            <svg viewBox="0 0 500 340" class="svg-full" role="img"
+              aria-label="Contraste entre rejilla serial restrictiva y procesos estocásticos tipo Metastaseis">
+              <defs>
+                <path id="xenakisBrownRoute"
+                  d="M 42 268 C 96 210, 134 295, 188 232 C 242 178, 294 274, 352 214 C 396 172, 430 236, 464 198" />
+              </defs>
+
+              <!-- Panel superior: Serialismo restrictivo -->
+              <rect x="14" y="12" width="472" height="112" rx="14" fill="#FAF8F4" stroke="#E4DED3" stroke-width="2" />
+              <text x="30" y="38" fill="#4A5366" font-size="15.5" font-weight="800">Música serial: serie rígida y
+                predeterminada</text>
+              <g stroke="#CBD5E1" stroke-width="1.5">
+                <line x1="36" y1="58" x2="464" y2="58" />
+                <line x1="36" y1="80" x2="464" y2="80" />
+                <line x1="36" y1="102" x2="464" y2="102" />
+                <line x1="106" y1="48" x2="106" y2="112" />
+                <line x1="196" y1="48" x2="196" y2="112" />
+                <line x1="286" y1="48" x2="286" y2="112" />
+                <line x1="376" y1="48" x2="376" y2="112" />
+              </g>
+              <g fill="#64748B">
+                <rect x="62" y="52" width="12" height="12" rx="2" />
+                <rect x="146" y="96" width="12" height="12" rx="2" />
+                <rect x="236" y="74" width="12" height="12" rx="2" />
+                <rect x="326" y="52" width="12" height="12" rx="2" />
+                <rect x="416" y="96" width="12" height="12" rx="2" />
+              </g>
+
+              <!-- Panel inferior: Superficie reglada tipo Metastaseis + gases/browniano -->
+              <rect x="14" y="138" width="472" height="188" rx="14" fill="#1D3557" />
+              <text x="30" y="166" fill="#F6B352" font-size="15.5" font-weight="800">Xenakis (Metastaseis): física de
+                gases + azar guiado</text>
+
+              <!-- Abanico hiperbólico inspirado en los glissandi de Metastaseis -->
+              <g stroke="rgba(255,255,255,0.16)" stroke-width="1.4">
+                <line x1="38" y1="304" x2="210" y2="180" />
+                <line x1="78" y1="304" x2="245" y2="180" />
+                <line x1="118" y1="304" x2="280" y2="180" />
+                <line x1="158" y1="304" x2="315" y2="180" />
+                <line x1="198" y1="304" x2="350" y2="180" />
+                <line x1="238" y1="304" x2="385" y2="180" />
+                <line x1="278" y1="304" x2="420" y2="180" />
+                <line x1="318" y1="304" x2="458" y2="180" />
+              </g>
+
+              <!-- Partículas de gas en suspensión -->
+              <g fill="#F6B352" opacity="0.88">
+                <circle class="cov-dot cov-dot--1" cx="72" cy="222" r="5" />
+                <circle class="cov-dot cov-dot--2" cx="146" cy="276" r="6" />
+                <circle class="cov-dot cov-dot--3" cx="228" cy="204" r="5" />
+                <circle class="cov-dot cov-dot--4" cx="318" cy="264" r="6.5" />
+                <circle class="cov-dot cov-dot--5" cx="408" cy="216" r="5.5" />
+              </g>
+
+              <use href="#xenakisBrownRoute" fill="none" stroke="#C85A32" stroke-width="4" stroke-linecap="round" />
+              <circle class="svg-motion-orb" r="6.5" fill="#FAF8F4" stroke="#C85A32" stroke-width="2.5">
+                <animateMotion dur="3.8s" repeatCount="indefinite">
+                  <mpath href="#xenakisBrownRoute" />
+                </animateMotion>
+              </circle>
+
+              <text x="250" y="314" text-anchor="middle" fill="#CBD5E1" font-size="14" font-weight="700">
+                Movimiento browniano y probabilidad → estructura musical
+              </text>
+            </svg>
+          </div>
         </div>
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 3: PROPÓSITO                              -->
+      <!-- DIAPOSITIVA 3: CONTEXTO MUSICAL (2/2) - TERMINOLOGÍA  -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="3" data-title="Propósito">
+      <section class="slide" data-slide="3" data-title="Contexto: Terminología" data-steps="5"
+        data-renderer="reveal">
         <header class="slide-header">
-          <span class="slide-kicker">03 · Propósito</span>
+          <div class="header-row">
+            <div>
+              <span class="slide-kicker">03 · Contexto musical (2/2) · Paso a paso</span>
+              <h2 class="slide-title">Terminología musical usada en el proyecto</h2>
+            </div>
+            <div class="anim-controls">
+              <button type="button" class="anim-btn" data-anim-toggle title="Reproducir/Pausar animación (P)">▶
+                Animar</button>
+              <button type="button" class="anim-btn anim-btn--icon" data-anim-reset
+                title="Reiniciar al paso 0">↺</button>
+            </div>
+          </div>
+        </header>
+
+        <div class="music-terms-layout">
+          <div class="music-terms-grid">
+            <article class="card term-card reveal-item" data-reveal="1">
+              <div class="term-card__top">
+                <span class="term-badge">1 · Escala</span>
+                <code>7 notas</code>
+              </div>
+              <p>Agrupación particular de notas musicales asociadas por un modo.</p>
+            </article>
+
+            <article class="card term-card reveal-item" data-reveal="2">
+              <div class="term-card__top">
+                <span class="term-badge term-badge--ok">2 · Modo</span>
+                <code>mayor / menor</code>
+              </div>
+              <p>Determina cómo se distribuyen las notas entre grados (<strong>mayor</strong> ≈ más alegre;
+                <strong>menor</strong> ≈ más triste).</p>
+            </article>
+
+            <article class="card term-card reveal-item" data-reveal="3">
+              <div class="term-card__top">
+                <span class="term-badge">3 · Grado</span>
+                <code>1º al 7º</code>
+              </div>
+              <p>Posición dentro de los 7 grados con propiedades según el modo; cambia de nota según la escala.</p>
+            </article>
+
+            <article class="card term-card term-card--wide reveal-item" data-reveal="4">
+              <div class="term-card__top">
+                <span class="term-badge term-badge--accent">4 · Intervalos</span>
+                <code>3a · 5a · 7a</code>
+              </div>
+              <p>Distancia entre dos notas según un orden particular: una nota a <strong>2 notas</strong> de otra se
+                denomina <strong>3ª</strong> (a 4 es <strong>5ª</strong> y a 6 es <strong>7ª</strong>).</p>
+            </article>
+
+            <article class="card term-card term-card--wide reveal-item" data-reveal="5">
+              <div class="term-card__top">
+                <span class="term-badge term-badge--dark">5 · Progresiones</span>
+                <code>La Folía / Quintas</code>
+              </div>
+              <p>Combinaciones ordenadas y generalizadas de los grados de acuerdo con la función armónica que
+                representan.</p>
+            </article>
+          </div>
+
+          <!-- Cinta visual unificada: Escala + Modo + 7 Grados + Salto de 3ª (+2) + Progresión -->
+          <div class="card music-strip-card">
+            <svg viewBox="0 0 1120 148" class="svg-full" role="img"
+              aria-label="Ejemplo visual de escala, grados del 1 al 7, intervalo de tercera y progresión">
+              <defs>
+                <path id="thirdJumpArc" d="M 105 64 Q 195 6, 285 64" />
+              </defs>
+              <text x="24" y="28" fill="#1D3557" font-size="15" font-weight="800">Ejemplo en Do mayor:</text>
+              <text x="205" y="28" fill="#C85A32" font-size="14.5" font-weight="800">Salto de +2 notas = Intervalo de
+                3ª</text>
+
+              <!-- Arco animado de 3ª (de 1º grado C3 a 3º grado E3) -->
+              <use href="#thirdJumpArc" class="svg-dash-flow" fill="none" stroke="#C85A32" stroke-width="3"
+                stroke-dasharray="5 4" />
+              <circle class="svg-motion-orb" r="5.5" fill="#C85A32">
+                <animateMotion dur="1.8s" repeatCount="indefinite">
+                  <mpath href="#thirdJumpArc" />
+                </animateMotion>
+              </circle>
+
+              <!-- Los 7 grados de la escala -->
+              <g font-family="Segoe UI, sans-serif" text-anchor="middle">
+                <rect x="60" y="64" width="90" height="62" rx="11" fill="#C85A32" />
+                <text x="105" y="87" fill="#FFE6DC" font-size="13" font-weight="700">1º Grado (I)</text>
+                <text x="105" y="113" fill="#FFFFFF" font-size="18" font-weight="800">C3</text>
+
+                <rect x="160" y="64" width="80" height="62" rx="11" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+                <text x="200" y="87" fill="#4A5366" font-size="13" font-weight="700">2º (II)</text>
+                <text x="200" y="113" fill="#1D3557" font-size="18" font-weight="800">D3</text>
+
+                <rect x="250" y="64" width="90" height="62" rx="11" fill="#227A67" />
+                <text x="295" y="87" fill="#E6F4F0" font-size="13" font-weight="700">3º (III) · 3ª</text>
+                <text x="295" y="113" fill="#FFFFFF" font-size="18" font-weight="800">E3</text>
+
+                <rect x="350" y="64" width="80" height="62" rx="11" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+                <text x="390" y="87" fill="#4A5366" font-size="13" font-weight="700">4º (IV)</text>
+                <text x="390" y="113" fill="#1D3557" font-size="18" font-weight="800">F3</text>
+
+                <rect x="440" y="64" width="86" height="62" rx="11" fill="#1D3557" />
+                <text x="483" y="87" fill="#CBD5E1" font-size="13" font-weight="700">5º (V) · 5ª</text>
+                <text x="483" y="113" fill="#FFFFFF" font-size="18" font-weight="800">G3</text>
+
+                <rect x="536" y="64" width="80" height="62" rx="11" fill="#F2EDE3" stroke="#1D3557" stroke-width="2" />
+                <text x="576" y="87" fill="#4A5366" font-size="13" font-weight="700">6º (VI)</text>
+                <text x="576" y="113" fill="#1D3557" font-size="18" font-weight="800">A3</text>
+
+                <rect x="626" y="64" width="86" height="62" rx="11" fill="#1D3557" />
+                <text x="669" y="87" fill="#CBD5E1" font-size="13" font-weight="700">7º (VII) · 7ª</text>
+                <text x="669" y="113" fill="#FFFFFF" font-size="18" font-weight="800">B3</text>
+              </g>
+
+              <!-- Bloque derecho: Progresión como orden generalizado de grados -->
+              <rect x="738" y="24" width="360" height="104" rx="14" fill="#1D3557" />
+              <text x="918" y="53" text-anchor="middle" fill="#F6B352" font-size="15" font-weight="800">Progresión (orden
+                general de grados)</text>
+              <text x="918" y="84" text-anchor="middle" fill="#FFFFFF" font-size="18" font-weight="800"
+                font-family="Consolas, monospace">I → V → I → VII → III</text>
+              <text x="918" y="110" text-anchor="middle" fill="#CBD5E1" font-size="13.5">Funciona igual en cualquier
+                tónica elegida</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================== -->
+      <!-- DIAPOSITIVA 4: PROPÓSITO                              -->
+      <!-- ===================================================== -->
+      <section class="slide" data-slide="4" data-title="Propósito">
+        <header class="slide-header">
+          <span class="slide-kicker">04 · Propósito</span>
           <h2 class="slide-title">¿Qué problema resuelve el proyecto?</h2>
         </header>
 
@@ -206,11 +430,11 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 4: ENTRADAS Y SALIDAS                     -->
+      <!-- DIAPOSITIVA 5: ENTRADAS Y SALIDAS                     -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="4" data-title="Entradas y salidas">
+      <section class="slide" data-slide="5" data-title="Entradas y salidas">
         <header class="slide-header">
-          <span class="slide-kicker">04 · Interfaz del programa</span>
+          <span class="slide-kicker">05 · Interfaz del programa</span>
           <h2 class="slide-title">Entradas → Proceso → Salidas</h2>
         </header>
 
@@ -277,13 +501,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 5: FLUJO GENERAL (ANIMADO POR PASOS)      -->
+      <!-- DIAPOSITIVA 6: FLUJO GENERAL (ANIMADO POR PASOS)      -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="5" data-title="Flujo general" data-steps="5" data-renderer="flow">
+      <section class="slide" data-slide="6" data-title="Flujo general" data-steps="5" data-renderer="flow">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">05 · Arquitectura · Paso a paso</span>
+              <span class="slide-kicker">06 · Arquitectura · Paso a paso</span>
               <h2 class="slide-title">Flujo general y su costo por etapa</h2>
             </div>
             <div class="anim-controls">
@@ -409,13 +633,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 6: MAPA DE ALGORITMOS (PROGRESIVO)        -->
+      <!-- DIAPOSITIVA 7: MAPA DE ALGORITMOS (PROGRESIVO)        -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="6" data-title="Algoritmos usados" data-steps="4" data-renderer="reveal">
+      <section class="slide" data-slide="7" data-title="Algoritmos usados" data-steps="4" data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">06 · Panorama algorítmico · Paso a paso</span>
+              <span class="slide-kicker">07 · Panorama algorítmico · Paso a paso</span>
               <h2 class="slide-title">¿Qué algoritmos usamos y cómo escalan?</h2>
             </div>
             <div class="anim-controls">
@@ -521,13 +745,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 7: ALGORITMO 1 - BROWNIANO                -->
+      <!-- DIAPOSITIVA 8: ALGORITMO 1 - BROWNIANO                -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="7" data-title="Algoritmo 1: Browniano" data-steps="3" data-renderer="reveal">
+      <section class="slide" data-slide="8" data-title="Algoritmo 1: Browniano" data-steps="3" data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">07 · Algoritmo 1 (Generación base) · Paso a paso</span>
+              <span class="slide-kicker">08 · Algoritmo 1 (Generación base) · Paso a paso</span>
               <h2 class="slide-title">Movimiento Browniano: azar con memoria</h2>
             </div>
             <div class="anim-controls">
@@ -612,13 +836,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 8: ESTRUCTURA 1 - TABLAS HASH             -->
+      <!-- DIAPOSITIVA 9: ESTRUCTURA 1 - TABLAS HASH             -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="8" data-title="Estructura: Tablas Hash" data-steps="3" data-renderer="reveal">
+      <section class="slide" data-slide="9" data-title="Estructura: Tablas Hash" data-steps="3" data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">08 · Estructura clave · Paso a paso</span>
+              <span class="slide-kicker">09 · Estructura clave · Paso a paso</span>
               <h2 class="slide-title">Tablas Hash: <code>dict</code> y <code>defaultdict</code></h2>
             </div>
             <div class="anim-controls">
@@ -706,14 +930,14 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 9: ALGORITMO 2 - VORAZ + HEAPMAX          -->
+      <!-- DIAPOSITIVA 10: ALGORITMO 2 - VORAZ + HEAPMAX         -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="9" data-title="Algoritmo 2: Voraz + HeapMax" data-steps="4"
+      <section class="slide" data-slide="10" data-title="Algoritmo 2: Voraz + HeapMax" data-steps="4"
         data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">09 · Algoritmo 2 (Optimización local) · Paso a paso</span>
+              <span class="slide-kicker">10 · Algoritmo 2 (Optimización local) · Paso a paso</span>
               <h2 class="slide-title">Voraz con <code>HeapMax</code>: mejor nota paso a paso</h2>
             </div>
             <div class="anim-controls">
@@ -814,14 +1038,14 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 10: ALGORITMO 3 - BACKTRACKING CON PODA   -->
+      <!-- DIAPOSITIVA 11: ALGORITMO 3 - BACKTRACKING CON PODA   -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="10" data-title="Algoritmo 3: Backtracking" data-steps="4"
+      <section class="slide" data-slide="11" data-title="Algoritmo 3: Backtracking" data-steps="4"
         data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">10 · Algoritmo 3 (Búsqueda con reglas) · Paso a paso</span>
+              <span class="slide-kicker">11 · Algoritmo 3 (Búsqueda con reglas) · Paso a paso</span>
               <h2 class="slide-title">Backtracking con Poda (DFS + Pila)</h2>
             </div>
             <div class="anim-controls">
@@ -916,14 +1140,14 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 11: SÍNTESIS TEMPORAL Y WAV               -->
+      <!-- DIAPOSITIVA 12: SÍNTESIS TEMPORAL Y WAV               -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="11" data-title="Algoritmo 4: Síntesis WAV" data-steps="3"
+      <section class="slide" data-slide="12" data-title="Algoritmo 4: Síntesis WAV" data-steps="3"
         data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">11 · Algoritmo 4 (Síntesis temporal) · Paso a paso</span>
+              <span class="slide-kicker">12 · Algoritmo 4 (Síntesis temporal) · Paso a paso</span>
               <h2 class="slide-title">Línea de tiempo MIDI → Audio WAV</h2>
             </div>
             <div class="anim-controls">
@@ -1007,13 +1231,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 12: TRAZA 1 - BROWNIANO (4 PASOS)         -->
+      <!-- DIAPOSITIVA 13: TRAZA 1 - BROWNIANO (4 PASOS)         -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="12" data-title="Traza 1: Browniano" data-steps="4" data-renderer="brownian">
+      <section class="slide" data-slide="13" data-title="Traza 1: Browniano" data-steps="4" data-renderer="brownian">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">12 · Traza en vivo (1/3) · Movimiento Browniano</span>
+              <span class="slide-kicker">13 · Traza en vivo (1/3) · Movimiento Browniano</span>
               <h2 class="slide-title">De saltos aleatorios a notas en <code>C mayor</code></h2>
             </div>
             <div class="anim-controls">
@@ -1083,14 +1307,14 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 13: TRAZA 2 - VORAZ + HEAPMAX (4 PASOS)   -->
+      <!-- DIAPOSITIVA 14: TRAZA 2 - VORAZ + HEAPMAX (4 PASOS)   -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="13" data-title="Traza 2: Voraz + HeapMax" data-steps="4"
+      <section class="slide" data-slide="14" data-title="Traza 2: Voraz + HeapMax" data-steps="4"
         data-renderer="greedy">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">13 · Traza en vivo (2/3) · Voraz + HeapMax</span>
+              <span class="slide-kicker">14 · Traza en vivo (2/3) · Voraz + HeapMax</span>
               <h2 class="slide-title">Selección con <code>HeapMax</code> (Progresión La Folía)</h2>
             </div>
             <div class="anim-controls">
@@ -1169,14 +1393,14 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 14: TRAZA 3 - BACKTRACKING (5 PASOS)      -->
+      <!-- DIAPOSITIVA 15: TRAZA 3 - BACKTRACKING (5 PASOS)      -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="14" data-title="Traza 3: Backtracking" data-steps="5"
+      <section class="slide" data-slide="15" data-title="Traza 3: Backtracking" data-steps="5"
         data-renderer="backtracking">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">14 · Traza en vivo (3/3) · Backtracking con Poda</span>
+              <span class="slide-kicker">15 · Traza en vivo (3/3) · Backtracking con Poda</span>
               <h2 class="slide-title">Árbol DFS y poda por costo (Bajo: <code>[E3, D3, A3]</code>)</h2>
             </div>
             <div class="anim-controls">
@@ -1249,13 +1473,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 15: CASOS LÍMITE (2 PASOS)                -->
+      <!-- DIAPOSITIVA 16: CASOS LÍMITE (2 PASOS)                -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="15" data-title="Casos límite" data-steps="2" data-renderer="reveal">
+      <section class="slide" data-slide="16" data-title="Casos límite" data-steps="2" data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">15 · Robustez del código · Paso a paso</span>
+              <span class="slide-kicker">16 · Robustez del código · Paso a paso</span>
               <h2 class="slide-title">Casos límite: ¿qué pasa y qué maneja?</h2>
             </div>
             <div class="anim-controls">
@@ -1321,13 +1545,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 16: COMPLEJIDAD INTERACTIVA (5 PASOS)     -->
+      <!-- DIAPOSITIVA 17: COMPLEJIDAD INTERACTIVA (5 PASOS)     -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="16" data-title="Complejidad" data-steps="5" data-renderer="complexity">
+      <section class="slide" data-slide="17" data-title="Complejidad" data-steps="5" data-renderer="complexity">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">16 · Rendimiento paso a paso · Ejemplo N = 23 notas (10 s)</span>
+              <span class="slide-kicker">17 · Rendimiento paso a paso · Ejemplo N = 23 notas (10 s)</span>
               <h2 class="slide-title">Análisis de complejidad: tiempo, espacio y crecimiento</h2>
             </div>
             <div class="anim-controls">
@@ -1443,13 +1667,13 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 17: CONCLUSIÓN (3 PASOS)                  -->
+      <!-- DIAPOSITIVA 18: CONCLUSIÓN (3 PASOS)                  -->
       <!-- ===================================================== -->
-      <section class="slide" data-slide="17" data-title="Conclusión" data-steps="3" data-renderer="reveal">
+      <section class="slide" data-slide="18" data-title="Conclusión" data-steps="3" data-renderer="reveal">
         <header class="slide-header">
           <div class="header-row">
             <div>
-              <span class="slide-kicker">17 · Aprendizajes clave · Paso a paso</span>
+              <span class="slide-kicker">18 · Aprendizajes clave · Paso a paso</span>
               <h2 class="slide-title">Conclusiones</h2>
             </div>
             <div class="anim-controls">
@@ -1485,9 +1709,9 @@
       </section>
 
       <!-- ===================================================== -->
-      <!-- DIAPOSITIVA 18: CIERRE / PREGUNTAS                    -->
+      <!-- DIAPOSITIVA 19: CIERRE / PREGUNTAS                    -->
       <!-- ===================================================== -->
-      <section class="slide slide--motif" data-slide="18" data-title="Cierre">
+      <section class="slide slide--motif" data-slide="19" data-title="Cierre">
         <div class="closing-layout">
           <svg viewBox="0 0 360 90" class="closing-wave" aria-hidden="true">
             <defs>
@@ -1543,7 +1767,7 @@
   <nav class="hud" aria-label="Controles de navegación">
     <div class="hud-left">
       <button type="button" class="hud-btn" id="btn-prev" aria-label="Diapositiva o paso anterior">← Anterior</button>
-      <div class="hud-counter" id="slide-counter">01 / 18</div>
+      <div class="hud-counter" id="slide-counter">01 / 19</div>
       <div class="step-dots" id="step-dots" aria-label="Pasos de la diapositiva"></div>
       <span class="hud-step-label" id="hud-step-label"></span>
       <button type="button" class="hud-btn hud-btn--primary" id="btn-next"
@@ -1580,31 +1804,53 @@
     </div>
   </div>
 
-  <!-- BIBLIOTECA HARDCORE: ENCICLOPEDIA TÉCNICA + SIMULADOR EN VIVO -->
+  <!-- BIBLIOTECA HARDCORE: ENCICLOPEDIA TÉCNICA + MODO PARANOIA + SIMULADOR -->
   <div id="hardcore-modal" class="hc-modal" hidden role="dialog" aria-modal="true"
     aria-label="Biblioteca Hardcore del proyecto">
     <div class="hc-modal__inner">
       <header class="hc-header">
         <div>
-          <span class="hc-kicker">Referencia técnica exhaustiva · 679 líneas de proyecto + 3 917 de sintetizador</span>
-          <h2>Biblioteca Hardcore — Música Estocástica</h2>
+          <span class="hc-kicker">🔥 Modo Paranoia · 679 líneas de proyecto + 3 917 de sintetizador + TXT + README +
+            Propuesta</span>
+          <h2>Biblioteca Hardcore — Enciclopedia Total y Defensa de Jurado</h2>
         </div>
         <div class="hc-header__actions">
-          <span class="hc-count-badge" id="hc-count-badge">36 fichas</span>
+          <span class="hc-count-badge" id="hc-count-badge">95 bloques</span>
           <button type="button" class="hud-btn" id="btn-hardcore-close">Cerrar (Esc)</button>
         </div>
       </header>
 
-      <!-- Barra de búsqueda instantánea + filtros por categoría -->
+      <!-- Barra de búsqueda instantánea + atajos rápidos + filtros por categoría -->
       <div class="hc-toolbar">
         <div class="hc-search-wrap">
           <label for="hc-search" class="sr-only">Buscar en la biblioteca técnica</label>
           <input type="search" id="hc-search" class="hc-search"
-            placeholder="Buscar función, variable, fórmula, MIDI, complejidad (ej. hundir, Folía, 0xC0, 240N, 3^N, clip)..."
+            placeholder="Buscar cualquier línea, variable, fórmula, pregunta trampa, MIDI o complejidad (ej. 40N, 240N, DP, % 6, 0xC0, IEEE 754, nonlocal, GIL, clip)..."
             autocomplete="off" />
+        </div>
+        <div class="hc-quick-chips" id="hc-quick-chips" aria-label="Atajos rápidos de preguntas clave">
+          <span class="hc-quick-label">Atajos rápidos:</span>
+          <button type="button" class="hc-chip-btn" data-hc-quick="xenakis">Xenakis</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="40n - 3">40N - 3</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="240n">240N (G=7)</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="programación dinámica">¿Por qué no DP?</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="óptimo global">¿Óptimo global?</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="% 6">% 6 vs % 7</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="secuencia_base">Secreto Voraz</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="max_septimas">max_7a=1 vs README</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="off">off antes de on</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="0xc0">0xC0 y Canal 9</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="ieee 754">IEEE 754</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="analisis_de_complejidad">Reconciliar .TXT</button>
+          <button type="button" class="hc-chip-btn" data-hc-quick="declaración de ia">Declaración IA</button>
+          <button type="button" class="hc-chip-btn hc-chip-btn--clear" id="btn-hc-clear">Limpiar ✕</button>
         </div>
         <div class="hc-tabs" id="hc-tabs" role="tablist" aria-label="Filtrar biblioteca técnica">
           <button type="button" class="hc-tab is-active" data-hc-tab="all" role="tab" aria-selected="true">Todo</button>
+          <button type="button" class="hc-tab" data-hc-tab="defensa" role="tab" aria-selected="false">🎯 Preguntas de
+            Jurado</button>
+          <button type="button" class="hc-tab" data-hc-tab="paranoia" role="tab" aria-selected="false">🔬 Modo Paranoia
+            / Forense</button>
           <button type="button" class="hc-tab" data-hc-tab="simulador" role="tab" aria-selected="false">⚡ Simulador y
             Mapa</button>
           <button type="button" class="hc-tab" data-hc-tab="algoritmos" role="tab"
@@ -1616,13 +1862,31 @@
           <button type="button" class="hc-tab" data-hc-tab="complejidad" role="tab" aria-selected="false">Complejidad
             Exacta</button>
           <button type="button" class="hc-tab" data-hc-tab="radiografia" role="tab" aria-selected="false">Radiografía
-            Código</button>
+            L1–L679</button>
           <button type="button" class="hc-tab" data-hc-tab="librerias" role="tab" aria-selected="false">Librerías y
             SF2</button>
-          <button type="button" class="hc-tab" data-hc-tab="defensa" role="tab" aria-selected="false">🎯 Defensa /
-            Q&amp;A</button>
         </div>
       </div>
+
+      <!-- Entrenador interactivo de Defensa Oral (Modo Paranoia) -->
+      <section class="hc-quiz-panel" id="hc-quiz-panel">
+        <div class="hc-card__head">
+          <span class="hc-cat">🎲 Simulador de Defensa Oral · Modo Paranoia</span>
+          <span class="comp-pill comp-pill--exp" id="quiz-counter">Pregunta 1 / 40</span>
+        </div>
+        <div class="hc-quiz-card">
+          <span class="hc-quiz-tag" id="quiz-tag">Pregunta de jurado</span>
+          <h3 id="quiz-question">Cargando banco de preguntas...</h3>
+          <p class="hc-code-ref"><code id="quiz-ref">PROYECTO_FINAL_MUSICA_ESTOCASTICA.py</code></p>
+          <div class="hc-quiz-actions">
+            <button type="button" class="anim-btn is-playing" id="btn-quiz-random">🎲 Pregunta trampa al azar</button>
+            <button type="button" class="anim-btn" id="btn-quiz-next">Siguiente →</button>
+            <button type="button" class="anim-btn anim-btn--icon" id="btn-quiz-reveal">👁 Mostrar respuesta
+              blindada</button>
+          </div>
+          <div class="hc-quiz-answer" id="quiz-answer" hidden></div>
+        </div>
+      </section>
 
       <!-- Bloque interactivo: Simulador en vivo con las fórmulas exactas del proyecto -->
       <section class="hc-sim-panel" id="hc-sim-panel" data-hc-block="simulador">

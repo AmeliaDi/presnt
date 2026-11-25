@@ -32,6 +32,17 @@
   const hcEmpty = document.getElementById("hc-empty");
   const hcSimPanel = document.getElementById("hc-sim-panel");
   const hcArchPanel = document.getElementById("hc-arch-panel");
+  const hcQuizPanel = document.getElementById("hc-quiz-panel");
+  const hcQuickChips = document.getElementById("hc-quick-chips");
+  const btnHcClear = document.getElementById("btn-hc-clear");
+  const btnQuizRandom = document.getElementById("btn-quiz-random");
+  const btnQuizNext = document.getElementById("btn-quiz-next");
+  const btnQuizReveal = document.getElementById("btn-quiz-reveal");
+  const quizCounterEl = document.getElementById("quiz-counter");
+  const quizTagEl = document.getElementById("quiz-tag");
+  const quizQuestionEl = document.getElementById("quiz-question");
+  const quizRefEl = document.getElementById("quiz-ref");
+  const quizAnswerEl = document.getElementById("quiz-answer");
   const simDur = document.getElementById("sim-dur");
   const simDurVal = document.getElementById("sim-dur-val");
   const simNote = document.getElementById("sim-note");
@@ -42,7 +53,8 @@
   // Notas del orador (1-2 frases por diapositiva, ocultas por defecto con tecla N)
   const SPEAKER_NOTES = [
     "Presentar el proyecto de Amelia Enora Marceline Chavez B. y Fernando Hernandez: convertir azar en música comparando dos optimizaciones.",
-    "Diapositiva reservada para el contexto musical ya preparado.",
+    "Contexto histórico: Iannis Xenakis creó la música estocástica en los años 50 inspirándose en gases y movimiento browniano, respondiendo con Metastaseis al serialismo rígido.",
+    "Repasar los 5 términos musicales del proyecto: escala, modo (mayor alegre / menor triste), los 7 grados, intervalos (a 2 notas = 3ª) y progresiones.",
     "Explicar por qué el azar puro suena desconectado y cómo Voraz y Backtracking resuelven ese problema de dos formas distintas.",
     "Mostrar con el ejemplo de 10 s (23 notas por instrumento) qué entra, qué escala fija se construye y qué 3 WAV salen.",
     "Recorrer las 5 etapas una por una (o con ▶ Animar / tecla P) señalando su complejidad: constante O(1), lineal O(N), exponencial acotada y síntesis.",
@@ -62,11 +74,13 @@
   ];
 
   // =========================================================
-  // CATÁLOGO ENCICLOPÉDICO DE LA BIBLIOTECA HARDCORE (40 FICHAS)
-  // Extraído 100% del código real del proyecto y su sintetizador
+  // CATÁLOGO ENCICLOPÉDICO MODO PARANOIA (95 FICHAS QUIRÚRGICAS)
+  // Extraído 100% del código real (679 L), meltysynth (3917 L), TXT, README y Propuesta
   // =========================================================
   const HARDCORE_ITEMS = [
-    // --- ALGORITMOS (7) ---
+    // =====================================================
+    // 1. ALGORITMOS (10 FICHAS)
+    // =====================================================
     {
       cat: "algoritmos",
       tag: "Algoritmo · L35–64",
@@ -76,55 +90,69 @@
       ref: "escala_por_intervalos(tonica, modo, octava=3) · construir_repositorio_escalas()",
       snippet: "base_midi = 12 * (octava + 1)  # 48 (C3)\nmidi_fijado = base_midi + (p_nota.midi % 12)",
       rows: [
-        ["De dónde sale", "Sistema temperado de 12 semitonos: patrón mayor [0,2,4,5,7,9,11] y menor natural [0,2,3,5,7,8,10]."],
-        ["Para qué sirve", "Precalcula las 24 escalas posibles (12 tónicas × 2 modos) plegadas dentro de la octava 3 (MIDI 48..59)."],
-        ["Cómo se conecta", "Lee nota_para_la_escala y modo_de_la_escala; entrega escala_actual (7 strings) a Browniano, Voraz y Backtracking."],
-        ["Complejidad", "Tiempo Θ(1) y Espacio Θ(1): ejecuta exactamente 12 × 2 × 7 = 168 iteraciones fijas siempre."]
+        ["De dónde sale", "Sistema temperado occidental de 12 semitonos: patrón mayor [0,2,4,5,7,9,11] (T-T-S-T-T-T-S) y menor natural [0,2,3,5,7,8,10] (T-S-T-T-S-T-T)."],
+        ["Para qué sirve", "Precalcula las 24 escalas posibles (12 tónicas × 2 modos) plegadas dentro de la octava 3 cerrada (MIDI 48..59)."],
+        ["Cómo se conecta", "Lee nota_para_la_escala y modo_de_la_escala; entrega escala_actual (lista de 7 strings) a Browniano, Voraz y Backtracking."],
+        ["Complejidad", "Tiempo Θ(1) y Espacio Θ(1): ejecuta exactamente 12 × 2 × 7 = 168 iteraciones fijas sin importar duracion."]
       ]
     },
     {
       cat: "algoritmos",
-      tag: "Algoritmo · L68–145",
-      pill: "Lineal · O(N)",
+      tag: "Algoritmo · L68–138",
+      pill: "Lineal · Θ(N)",
       pillCls: "comp-pill--linear",
-      title: "2. Movimiento Browniano 1D (Caminata Gaussiana)",
+      title: "2. Movimiento Browniano 1D (Proceso de Wiener discretizado)",
       ref: "movimiento_browniano_bajo / guitarra_jazz / campana_tubular / steel_drums",
-      snippet: "actual += random.gauss(0.0, paso)  # paso = 1.0\ncanal = [(escala_actual[int(x * 100) % 6], 1.0) for x in resultado]",
+      snippet: "valores = [inicio]; actual = inicio\nfor _ in range(n - 1): actual += random.gauss(0.0, paso)",
       rows: [
-        ["De dónde sale", "Proceso estocástico de Wiener (física de partículas en fluidos): cada estado suma ruido normal N(0,1) al anterior."],
-        ["Por qué este y no randint", "random.randint genera saltos sin memoria; el browniano preserva correlación temporal entre notas consecutivas."],
+        ["De dónde sale", "Modelo físico de partículas suspendidas en un fluido (Einstein/Wiener): caminata aleatoria continua X_k = X_{k-1} + Z_k con Z_k ~ N(0, 1)."],
+        ["Por qué este y no randint", "random.randint genera ruido blanco sin memoria (saltos inconexos); el browniano preserva autocorrelación temporal entre notas vecinas."],
         ["Cómo se conecta", "Alimenta directo canales_config (aleatorio_bruto.wav) y genera valors_aislados_* para Voraz y Backtracking."],
-        ["Complejidad", "Tiempo O(N) exacto (40N - 3 operaciones en los 4 canales) y Espacio O(N)."]
+        ["Complejidad", "Tiempo Θ(N) estricto (40N - 3 operaciones elementales sumando los 4 canales) y Espacio Θ(N)."]
       ]
     },
     {
       cat: "algoritmos",
-      tag: "Algoritmo · L240–296",
+      tag: "Algoritmo · L88, 104, 120, 136",
+      pill: "Lineal · Θ(N)",
+      pillCls: "comp-pill--linear",
+      title: "3. Cuantización escalar y plegado modular a grados (×100 % 6)",
+      ref: "canal_bajo = [(escala_actual[int(x * 100) % 6], dedtln) for x in resultado]",
+      snippet: "idx = int(x * 100) % 6  # amplifica decimales pequeños y proyecta a 0..5",
+      rows: [
+        ["De dónde sale", "Discretización uniforme + aritmética modular para mapear números reales continuos (-∞, +∞) a índices finitos de una lista."],
+        ["Por qué × 100", "Como random.gauss(0, 1) produce variaciones del orden de centésimas/décimas (ej. 0.14 → 0.29), sin multiplicar por 100 int(x) daría 0 repetidamente."],
+        ["Seguridad con negativos", "En Python el operador % siempre devuelve el signo del divisor (6 > 0): por ejemplo int(-0.85 * 100) % 6 = -85 % 6 = 5, nunca un índice negativo inválido."]
+      ]
+    },
+    {
+      cat: "algoritmos",
+      tag: "Algoritmo · L248–285",
       pill: "Lineal · O(N) (G=7)",
       pillCls: "comp-pill--linear",
-      title: "3. Algoritmo Voraz de aproximación armónica",
+      title: "4. Algoritmo Voraz de conducción armónica de voces",
       ref: "algoritmo_voraz_para_aproximar(secuencia_base, escala, progresion, factor_paso=0.5)",
-      snippet: "grado_obj = progresion[paso_idx % len(progresion)] % 7\nprioridad = -(dist_objetivo + 0.5 * dist_anterior)",
+      snippet: "grado_objetivo = progresion[paso_idx % len(progresion)] % num_grados\nprioridad = -(dist_objetivo + factor_paso * dist_anterior)",
       rows: [
-        ["De dónde sale", "Paradigma Greedy (elección localmente óptima sin mirar el futuro) guiado por La Folía (mayor) o Quintas (menor)."],
-        ["Para qué sirve", "Equilibra caer en el grado armónico del compás (peso 1.0) sin dar saltos melódicos bruscos desde la nota previa (peso 0.5)."],
-        ["Cómo se conecta", "Transforma guitarra (canal 1) y campana tubular (canal 2) usando HeapMax(candidatos).extraer_maximo()."],
-        ["Complejidad", "O(N · (G + log G)) con G = 7 constante → Tiempo lineal O(N) (~240N) y Espacio O(N)."]
+        ["De dónde sale", "Paradigma Greedy (elección localmente óptima paso a paso sin reconsiderar decisiones pasadas) guiado por La Folía o Quintas."],
+        ["Para qué sirve", "Minimiza simultáneamente la distancia al acorde ideal del pulso (peso 1.0) y el salto melódico desde la nota previa (peso 0.5)."],
+        ["Cómo se conecta", "Construye un HeapMax(candidatos) de G=7 nodos en cada pulso para guitarra (canal 1) y campana tubular (canal 2)."],
+        ["Complejidad", "O(N · (G + log G)) con G = 7 constante → Tiempo lineal Θ(N) (~240N) y Espacio Θ(N)."]
       ]
     },
     {
       cat: "algoritmos",
       tag: "Algoritmo · L300–330",
-      pill: "Lineal · O(N)",
+      pill: "Lineal · Θ(N)",
       pillCls: "comp-pill--linear",
-      title: "4. Síntesis de voces complementarias (3ª diatónica + silencio)",
+      title: "5. Generador de contrapunto complementario (3ª diatónica + silencio)",
       ref: "las_notas_de_bajo_y_percusion_que_son_complementarias_a_las_otras()",
-      snippet: "if i % 2 == 0: idx_tercera = (idx_ref + 2) % 7  # intervalo de 3a\nelse: resultado.append(('rest', dur))",
+      snippet: "if i % 2 == 0: idx_tercera = (idx_ref + 2) % cantidad_de_notas\nelse: resultado.append(('rest', dur))",
       rows: [
-        ["De dónde sale", "Contrapunto armónico simple por terceras paralelas y respiración rítmica alternada."],
-        ["Para qué sirve", "Evita que los 4 canales toquen la misma nota a la vez en voraz.wav: suma armonía en tiempos pares y aire en impares."],
-        ["Cómo se conecta", "Bajo acompaña a Guitarra voraz; Steel drums acompaña a Campana voraz → arma canales_config_voraz."],
-        ["Complejidad", "Tiempo Θ(N) y Espacio Θ(N): un único recorrido lineal con consulta O(1) en diccionario."]
+        ["De dónde sale", "Armonización paralela por terceras diatónicas (+2 grados en la escala) combinada con articulación rítmica binaria."],
+        ["Para qué sirve", "Evita la saturación tímbrica en voraz.wav: en pulsos pares acompaña a una tercera de distancia y en impares inserta silencio ('rest')."],
+        ["Cómo se conecta", "Bajo acompaña a sequence_guitarra_voraz; Steel drums acompaña a sequence_campana_voraz → arma canales_config_voraz."],
+        ["Complejidad", "Tiempo Θ(N) y Espacio Θ(N): 1 recorrido lineal con búsqueda O(1) en diccionario."]
       ]
     },
     {
@@ -132,14 +160,14 @@
       tag: "Algoritmo · L345–493",
       pill: "O(N)..O(3^N) ≤4000",
       pillCls: "comp-pill--exp",
-      title: "5. Backtracking con Poda (DFS + Branch & Bound)",
-      ref: "poda_de_backtracking() · dfs(paso, r3, r5, r7, costo_acum)",
+      title: "6. Backtracking con Poda (DFS + Branch & Bound)",
+      ref: "poda_de_backtracking() · dfs(paso, siguiente_nota3, siguiente_nota5, siguiente_nota7, costo_acum)",
       snippet: "if costo_acum >= mejor_costo: return\nif nodos_visitados > max_nodos: limite_alcanzado = True; return",
       rows: [
-        ["De dónde sale", "Búsqueda en profundidad en árbol de estados con retroceso (pop) y cota superior (Branch & Bound)."],
-        ["Por qué se usa", "Las restricciones de racha (max_3a=2, max_5a=2, max_7a=1) dependen del historial; si un camino encierra o encarece, retrocede."],
-        ["Triple optimización", "1) Ordena candidatos por menor distancia (7a:1, 3a:2, 5a:3); 2) Poda si costo ≥ mejor_costo; 3) Tope max_nodos = 4000 + respaldo a 3a."],
-        ["Complejidad", "Mejor caso O(N); Peor teórico O(3^N); Práctico acotado a ≤ 4 000 nodos por canal. Espacio O(N) en pila."]
+        ["De dónde sale", "Búsqueda primero en profundidad (DFS) sobre árbol de decisiones con retroceso explícito (pop) y acotamiento por costo (Branch & Bound)."],
+        ["Por qué hace falta", "Las reglas de racha máxima dependen del camino previo; cuando una combinación futura encarece o bloquea, el algoritmo retrocede y prueba otra rama."],
+        ["Triple aceleración", "1) Heurística voraz local (.sort() prueba 7a de costo 1 primero); 2) Poda por cota superior mejor_costo; 3) Tope anytime max_nodos = 4000."],
+        ["Complejidad", "Mejor caso Ω(N); Peor teórico O(3^N); Ejecución real acotada a ≤ 4 000 nodos por instrumento. Espacio O(N)."]
       ]
     },
     {
@@ -147,14 +175,40 @@
       tag: "Algoritmo · L391–401",
       pill: "Constante · O(1)/paso",
       pillCls: "comp-pill--const",
-      title: "6. Polifonía por división modular de turnos",
+      title: "7. Planificador polifónico por aritmética modular (mod 1..4)",
       ref: "en_que_orden_tocaran_para_que_no_se_sature(paso)",
-      snippet: "bajo: paso%1==0 | guitarra: paso%2==0 | campana: paso%3==0 | drums: paso%4==0",
+      snippet: "bajo: paso%1==0 | guitarra: paso%2==0 | campana: paso%3==0 | steel drums: paso%4==0",
       rows: [
-        ["De dónde sale", "Aritmética modular rítmica con períodos 1, 2, 3 y 4 (cuyo mínimo común múltiplo es MCM = 12 pulsos)."],
-        ["Para qué sirve", "Despeja la textura sonora en backtracking.wav: solo cada 12 notas (paso 0, 12, 24...) suenan los 4 instrumentos juntos."],
-        ["Efecto en el DFS", "En pasos donde un instrumento hace 'rest', el DFS NO ramifica en 3 hijos (solo avanza 1 llamada con mismo costo), ¡reduciendo drásticamente el árbol real!"],
-        ["Complejidad", "O(1) por paso; reduce la profundidad ramificada real a N/2 (guitarra), N/3 (campana) y N/4 (steel drums)."]
+        ["De dónde sale", "Polirritmia modular con períodos 1, 2, 3 y 4, cuyo mínimo común múltiplo es MCM(1,2,3,4) = 12 pulsos."],
+        ["Efecto musical", "Bajo lleva el pulso continuo (100%), guitarra entra al 50%, campana al 33.3% y steel drums al 25%; solo cada 12 notas coinciden los 4."],
+        ["Efecto algorítmico brutal", "Cuando devuelve False, dfs NO ramifica en 3 hijos (solo inserta 'rest' con costo +0 y baja 1 nivel), reduciendo el exponente de 3^N a 3^(N/2), 3^(N/3) y 3^(N/4)."]
+      ]
+    },
+    {
+      cat: "algoritmos",
+      tag: "Algoritmo · L403–417",
+      pill: "Constante · O(1)/paso",
+      pillCls: "comp-pill--const",
+      title: "8. Autómata finito de restricciones de racha melódica",
+      ref: "reestricciones_de_la_siguiente_nota(r3, r5, r7, max_terceras=2, max_quintas=2, max_septimas=1)",
+      snippet: "if r3 >= 2: return ['5a']\nif r5 >= 2: return ['7a']\nif r7 >= 1: return ['3a']\nreturn ['3a', '5a', '7a']",
+      rows: [
+        ["De dónde sale", "Máquina de estados determinista que prohíbe intervalos repetitivos monótonos y fuerza rotación armónica."],
+        ["Ciclo de escape", "Al saturar terceras fuerza quinta; al saturar quintas fuerza séptima; al usar una séptima fuerza tercera (ciclo dirigido 3a → 5a → 7a → 3a)."],
+        ["Impacto en el árbol", "Cada vez que un contador alcanza su tope, el factor de ramificación de ese nivel cae de 3 hijos a exactamente 1 hijo."]
+      ]
+    },
+    {
+      cat: "algoritmos",
+      tag: "Algoritmo · L484–492",
+      pill: "Lineal · O(N)",
+      pillCls: "comp-pill--linear",
+      title: "9. Red de seguridad determinista (Fallback post-DFS)",
+      ref: "if not mejor_secuencia: ... grado_3a = (grado_base + desplazamientos['3a']) % num_grados",
+      snippet: "if not mejor_secuencia:\n    # rellena respetando turnos mod 1..4 y transponiendo a 3a (+2)",
+      rows: [
+        ["Cuándo se activaría", "Solo si max_nodos fuera menor que n_pasos (ej. si alguien pidiera N > 4000 pasos y el DFS se detuviera antes de tocar la primera hoja)."],
+        ["Por qué es buena ingeniería", "Garantiza por contrato que poda_de_backtracking jamás devuelva una lista vacía cuando n_pasos > 0, asegurando que backtracking.wav siempre dure duracion_s."]
       ]
     },
     {
@@ -162,44 +216,71 @@
       tag: "Algoritmo · L533–640",
       pill: "O(N log N + S)",
       pillCls: "comp-pill--nlogn",
-      title: "7. Planificación discreta de eventos con Timsort y render por tramos",
+      title: "10. Motor de eventos discretos (Timsort doble) y síntesis por tramos",
       ref: "envoltorio_para_los_varios_wav() · sorted() · synth.render()",
-      snippet: "instantes = sorted(set(acciones_por_muestra.keys()) | {num_muestras})\nkey=lambda x: 0 if x[0] == 'off' else 1",
+      snippet: "instantes = sorted(set(acciones_por_muestra.keys()) | {num_muestras})\nacciones_ordenadas = sorted(acciones, key=lambda x: 0 if x[0]=='off' else 1)",
       rows: [
-        ["De dónde sale", "Simulación dirigida por eventos discretos (DES) + Timsort híbrido (MergeSort + InsertionSort) nativo de Python."],
-        ["Por qué off antes de on", "Si en la misma muestra termina e inicia la misma nota en el mismo canal, procesar 'on' antes y 'off' después apagaría la nota nueva al instante."],
-        ["Cómo se conecta", "Recibe cualquiera de las 3 configuraciones de canales, sintetiza por tramos [t_actual, t_siguiente) y escribe el .wav."],
-        ["Complejidad", "Ordenar O(N) instantes cuesta O(N log N); renderizar y exportar muestras cuesta O(S). Total: O(N log N + S)."]
+        ["Dos ordenamientos distintos", "1) Ordena globalmente los instantes de muestra únicos t_0 < t_1 < ... < t_k; 2) En cada instante ordena localmente los eventos poniendo 'off' (0) antes que 'on' (1)."],
+        ["Síntesis exacta entre eventos", "Entre t_actual y t_siguiente el estado MIDI no cambia, por lo que synth.render sintetiza de golpe tramo = t_siguiente - t_actual muestras estéreo."],
+        ["Complejidad", "O(N log N) para ordenar eventos + O(S) para sintetizar y cuantizar las muestras PCM."]
       ]
     },
 
-    // --- ESTRUCTURAS DE DATOS (6) ---
+    // =====================================================
+    // 2. ESTRUCTURAS DE DATOS (10 FICHAS)
+    // =====================================================
     {
       cat: "estructuras",
       tag: "Estructura · L171–175",
-      pill: "Objeto O(1)",
+      pill: "Objeto · O(1)",
       pillCls: "comp-pill--const",
-      title: "8. Nodo del montículo (NodoHeap)",
+      title: "11. Clase NodoHeap: encapsulación de clave, carga útil e índice",
       ref: "class NodoHeap(dato, prioridad: float)",
-      snippet: "self.dato = (nota_candidata, dur_ql, idx_nota)\nself.prioridad = prioridad; self.indice = None",
+      snippet: "self.dato = (nota_candidata, dur_ql, idx_nota)\nself.prioridad = prioridad\nself.indice = None",
       rows: [
-        ["Qué almacena", "Empaqueta la tupla musical (dato), la clave numérica de comparación (prioridad) y su posición viva en el arreglo (indice)."],
-        ["Por qué mantener indice", "Cada intercambiar(i, j) actualiza heap[i].indice = i y al extraer limpia maximo.indice = None, dejando la estructura lista para decrease/increase-key en O(log G)."],
-        ["Memoria", "O(1) por nodo; en el proyecto coexisten exactamente G = 7 instancias por pulso evaluado."]
+        ["Qué desacopla", "Separa limpiamente la clave de comparación (self.prioridad: float) del dato musical compuesto (self.dato: tuple), evitando que Python intente comparar strings o Nones en caso de empate."],
+        ["Por qué guarda self.indice", "Permite conocer en O(1) en qué celda del arreglo vive cada nodo en todo momento (patrón clásico de colas de prioridad indexadas para Dijkstra/Prim)."]
       ]
     },
     {
       cat: "estructuras",
       tag: "Estructura · L161–238",
-      pill: "Heap · O(G) / O(log G)",
+      pill: "Árbol en arreglo · O(G)",
       pillCls: "comp-pill--linear",
-      title: "9. Cola de Prioridad Máxima propia (HeapMax)",
-      ref: "class HeapMax · construir_heap · flotar · hundir · insertar · extraer_maximo",
-      snippet: "padre=(i-1)//2 | izq=2*i+1 | der=2*i+2\nfor i in range((self.tamano // 2) - 1, -1, -1): self.hundir(i)",
+      title: "12. Clase HeapMax: árbol binario casi completo sobre list contigua",
+      ref: "padre(i)=(i-1)//2 · izquierdo(i)=2*i+1 · derecho(i)=2*i+2",
+      snippet: "Índice: [  0,    1,    2,    3,    4,    5,    6 ]\nNivel:  [Raíz, H_izq, H_der, Nieto0..Nieto3]",
       rows: [
-        ["Invariante Max-Heap", "Para todo nodo i > 0 se cumple heap[padre(i)].prioridad >= heap[i].prioridad, garantizando el máximo en heap[0]."],
-        ["Operaciones reales", "construir_heap usa el método bottom-up de Floyd O(G); flotar sube en inserciones O(log G); hundir repara la raíz al extraer O(log G)."],
-        ["Por qué no heapq", "heapq de Python solo ofrece min-heap sobre tipos comparables sin encapsular nodos ni rastrear índices internos."]
+        ["Por qué arreglo y no punteros", "Un árbol binario completo en arreglo 0-based no gasta memoria en punteros izq/der/padre, tiene localidad de caché perfecta y calcula parientes con aritmética entera O(1)."],
+        ["Invariante estructural y de orden", "Todas las hojas están en los últimos niveles compactadas a la izquierda, y todo padre tiene prioridad >= que sus dos hijos."]
+      ]
+    },
+    {
+      cat: "estructuras",
+      tag: "Estructura · L186–215",
+      pill: "O(log G)",
+      pillCls: "comp-pill--const",
+      title: "13. Mecánica interna de intercambiar(), flotar() y hundir()",
+      ref: "HeapMax.intercambiar · HeapMax.flotar · HeapMax.hundir",
+      snippet: "if izq < self.tamano and self.heap[izq].prioridad > self.heap[mayor].prioridad: mayor = izq",
+      rows: [
+        ["intercambiar(i, j)", "Hace swap en tupla O(1) y actualiza inmediatamente self.heap[i].indice = i y self.heap[j].indice = j para no romper el invariante de índices."],
+        ["flotar(i) (sift-up)", "Sube un nodo recién insertado comparando contra padre(i) hasta que prioridad <= padre o llega a la raíz i = 0."],
+        ["hundir(i) (sift-down)", "Compara el nodo i contra sus dos hijos (izq y der), elige el mayor de los tres y baja hasta restaurar la propiedad Max-Heap."]
+      ]
+    },
+    {
+      cat: "estructuras",
+      tag: "Estructura · L227–238",
+      pill: "O(log G)",
+      pillCls: "comp-pill--const",
+      title: "14. Seguridad de bordes en extraer_maximo() (cola vacía o de 1 nodo)",
+      ref: "HeapMax.extraer_maximo() -> NodoHeap | None",
+      snippet: "if self.tamano == 0: return None\nmaximo = self.heap[0]; ultimo = self.heap.pop(); self.tamano -= 1\nif self.tamano > 0: self.heap[0] = ultimo; ...; self.hundir(0)",
+      rows: [
+        ["Caso tamano == 0", "Devuelve None sin lanzar IndexError (manejado además en L278 con if mejor is not None)."],
+        ["Caso crítico tamano == 1", "self.heap.pop() deja la lista vacía y tamano pasa a 0; el guardián if self.tamano > 0 evita escribir self.heap[0] = ultimo sobre una lista vacía."],
+        ["Limpieza de estado", "Antes de retornar asigna maximo.indice = None porque ese nodo ya no pertenece al montículo."]
       ]
     },
     {
@@ -207,13 +288,26 @@
       tag: "Estructura · L37–582",
       pill: "7 Tablas Hash · O(1)",
       pillCls: "comp-pill--const",
-      title: "10. Los 7 diccionarios (dict y defaultdict) del proyecto",
-      ref: "INTERVALOS · repositorio_escalas · indice_para_la_nota... · desplazamientos · orden... · mapa_midi · acciones_por_muestra",
-      snippet: "repositorio_escalas[(nota, modo)] -> list[str]\nacciones_por_muestra = defaultdict(list)  # muestra -> [('on'/'off', ch, key, vel)]",
+      title: "15. Inventario completo de los 7 diccionarios del sistema",
+      ref: "dict (6) + collections.defaultdict (1)",
+      snippet: "1) INTERVALOS (2) | 2) repositorio_escalas (24) | 3) indice_para_la_nota... (7)\n4) desplazamientos (3) | 5) orden_de_elegir... (3) | 6) mapa_midi (12) | 7) acciones_por_muestra",
       rows: [
-        ["Catálogos O(1)", "INTERVALOS (2 modos), repositorio_escalas (24 tuplas clave), desplazamientos y orden_de_elegir_el_grado (3 intervalos)."],
-        ["Traductores rápidos", "indice_para_la_nota_dentro_de_la_escala evita list.index() O(G); mapa_midi cachea los números MIDI evitando llamar a music21 N veces."],
-        ["Índice temporal", "acciones_por_muestra (defaultdict) agrupa colisiones de múltiples instrumentos en la misma muestra exacta en O(1) amortizado."]
+        ["Claves compuestas inmutables", "repositorio_escalas usa tuplas (nota, modo) como clave porque list no es hasheable en Python pero tuple sí."],
+        ["Índice inverso O(1)", "indice_para_la_nota_dentro_de_la_escala invierte escala_actual (nota → 0..6) para no pagar escala.index(nota) lineal en cada pulso."],
+        ["Caché global MIDI", "mapa_midi contiene las 12 notas cromáticas de la octava 3 (MIDI 48..59), evitando instanciar objetos pesados music21.pitch.Pitch miles de veces."]
+      ]
+    },
+    {
+      cat: "estructuras",
+      tag: "Estructura · L150, 334, 515",
+      pill: "Contrato de datos",
+      pillCls: "comp-pill--const",
+      title: "16. Esquema uniforme de pistas: canales_config (x3 variantes)",
+      ref: "canales_config · canales_config_voraz · canales_config_backtracking",
+      snippet: "{\"channel\": 0..3, \"program\": 35|26|14|114, \"velocity\": 70, \"sequence\": [(simbolo, dur_ql), ...]}",
+      rows: [
+        ["Diseño desacoplado", "Los tres algoritmos producen exactamente la misma interfaz list[dict], lo que permite que envoltorio_para_los_varios_wav sea 100% agnóstico del algoritmo generador."],
+        ["Representación de notas y silencios", "Cada elemento de sequence es una tupla (str | None, float), p. ej. ('E3', 1.0) para nota activa o ('rest', 1.0) para silencio."]
       ]
     },
     {
@@ -221,408 +315,1022 @@
       tag: "Estructura · L609",
       pill: "Conjunto Hash · O(E)",
       pillCls: "comp-pill--linear",
-      title: "11. Conjunto matemático (set) para deduplicación temporal",
+      title: "17. Conjunto matemático (set) con centinela de fin de archivo",
       ref: "instantes = sorted(set(acciones_por_muestra.keys()) | {num_muestras})",
       snippet: "set(acciones_por_muestra.keys()) | {num_muestras}",
       rows: [
-        ["Qué resuelve", "Asegura que el borde final exacto del archivo (num_muestras) exista siempre en la línea de tiempo sin duplicarlo si una nota ya terminaba ahí."],
-        ["Por qué importa", "Si la canción termina en silencio (ej. 'rest' final), el tramo hasta num_muestras igual se renderiza completo hasta cubrir duracion_s."],
-        ["Complejidad", "Unión en O(E) seguida de Timsort en O(E log E), con E ≤ 8N + 1 instantes."]
+        ["Por qué hace falta {num_muestras}", "Si los últimos pulsos de los 4 canales son 'rest', no existe ningún evento note_off en el final del archivo; inyectar {num_muestras} obliga a renderizar la cola de silencio/reverberación hasta completar duracion_s exacta."],
+        ["Deduplicación O(1)", "Si num_muestras ya existía como clave de algún note_off, el operador unión | evita duplicarlo para no crear un tramo vacío tramo = 0."]
       ]
     },
     {
       cat: "estructuras",
       tag: "Estructura · L424–480",
-      pill: "Pila DFS · O(N)",
+      pill: "Pila LIFO · O(N)",
       pillCls: "comp-pill--linear",
-      title: "12. Pila implícita de recursión + arreglo mutable in-place",
+      title: "18. Pila explícita in-place (secuencia_actual) + Call Stack de Python",
       ref: "secuencia_actual.append(...) · dfs(...) · secuencia_actual.pop()",
-      snippet: "secuencia_actual.append((nota_elegida, dur_ql))\ndfs(paso + 1, sig_r3, sig_r5, sig_r7, nuevo_costo)\nsecuencia_actual.pop()",
+      snippet: "secuencia_actual.append((nota_elegida, dur_ql))\ndfs(paso + 1, sig_r3, sig_r5, sig_r7, nuevo_costo)\nsecuencia_actual.pop()  # O(1) amortizado",
       rows: [
-        ["Dos pilas coordinadas", "La pila de llamadas de Python guarda (paso, r3, r5, r7, costo_acum) y secuencia_actual mantiene las notas elegidas en el camino activo."],
-        ["Ahorro crítico de RAM", "Pasar secuencia_actual + [nota] en cada nodo gastaría O(N) por nodo visitado; con append/pop muta en O(1) y solo ejecuta .copy() cuando mejora mejor_costo."],
-        ["Complejidad", "Espacio estricto O(N): nunca supera n_pasos marcos de pila."]
+        ["Por qué mutar y deshacer", "Si pasáramos secuencia_actual + [(nota, dur)] por valor en 4 000 nodos con N = 140, clonaríamos hasta 560 000 tuplas; con append/pop existe 1 sola lista viva en RAM."],
+        ["Cuándo se clona (.copy())", "Únicamente en L444 (mejor_secuencia = secuencia_actual.copy()) cuando llegamos a una hoja completa que mejora estrictamente mejor_costo."]
       ]
     },
     {
       cat: "estructuras",
       tag: "Estructura · L575–639",
-      pill: "NumPy · O(S)",
+      pill: "Buffers C · O(S)",
       pillCls: "comp-pill--linear",
-      title: "13. Vectores contiguos float32 y matriz estéreo PCM int16",
-      ref: "left = np.zeros(num_muestras, dtype=np.float32) · stereo_pcm16",
-      snippet: "stereo = np.column_stack((left, right))\nstereo_pcm16 = np.clip(stereo * 32767.0, -32768, 32767).astype(np.int16)",
+      title: "19. Buffers vectoriales NumPy: float32 planar → int16 entrelazado",
+      ref: "left, right (float32) → stereo (S, 2) → stereo_pcm16 (int16)",
+      snippet: "left = np.zeros(num_muestras, dtype=np.float32)\nstereo = np.column_stack((left, right))  # entrelazado LRLRLR...",
       rows: [
-        ["Diseño en memoria", "Dos vectores C contiguos de 4 bytes/muestra (float32) durante la mezcla, convertidos al final en una matriz S × 2 de 2 bytes/muestra (int16)."],
-        ["Por qué float32 primero", "El sintetizador suma ondas en coma flotante [-1.0, 1.0]; convertir antes truncaría la suma polifónica de los 4 instrumentos."],
-        ["Tamaño exacto", "Para 60 s (S = 2 646 000): left + right ocupan 21.17 MB temporales y el .wav final pesa exactamente 10.58 MB."]
+        ["Planar vs Interleaved", "MeltySynth escribe por separado el canal izquierdo (left) y derecho (right) (formato planar); el estándar WAV exige muestras alternadas [L₀, R₀, L₁, R₁...] que column_stack arma en C."],
+        ["Huella exacta por muestra", "float32 usa 4 bytes/canal; int16 estéreo final usa exactamente 4 bytes por frame estéreo (2 bytes L + 2 bytes R)."]
+      ]
+    },
+    {
+      cat: "estructuras",
+      tag: "Estructura interna · meltysynth.py",
+      pill: "Pool fijo · O(64)",
+      pillCls: "comp-pill--const",
+      title: "20. Pool preasignado de voces (_VoiceCollection) y array('f') en MeltySynth",
+      ref: "meltysynth.py: create_buffer (array 'd') · read_int16_array_as_float_array (array 'f') · _VoiceCollection",
+      snippet: "self._voices = _VoiceCollection(self, self._maximum_polyphony)  # 64 voces precreadas",
+      rows: [
+        ["Object Pool Pattern", "MeltySynth preasigna 64 objetos _Voice al iniciar para no crear ni destruir instancias durante la síntesis de audio (evita pausas del Garbage Collector)."],
+        ["array.array de stdlib", "Las ondas PCM del SoundFont se guardan en array('f') compacto (4 bytes por float en vez de 28 bytes por float de Python)."]
       ]
     },
 
-    // --- MATEMÁTICAS, MÚSICA Y AUDIO DIGITAL (6) ---
+    // =====================================================
+    // 3. MATEMÁTICAS, TEORÍA MUSICAL Y DSP (10 FICHAS)
+    // =====================================================
     {
       cat: "matematicas",
       tag: "Fórmula · L68–72",
-      pill: "Discretización temporal",
+      pill: "Discretización",
       pillCls: "comp-pill--const",
-      title: "14. Ecuaciones de Tempo (140 BPM) a cantidad de notas N",
-      ref: "dedtln = 1.0 · bpm = 140.0 · seg_por_ql · total_ql · radio_de_notas",
-      snippet: "seg_por_ql = 60.0 / 140.0  # 0.42857 s por negra\nN = max(1, int((duracion * 140.0 / 60.0) // 1.0))",
+      title: "21. Tabla exacta de conversión Tempo (140 BPM) → Pulsos N",
+      ref: "seg_por_ql = 60/140 ≈ 0.428571 s · N = int((duracion * 140 / 60) // 1.0)",
+      snippet: "3 s → N=7 | 10 s → N=23 | 15 s → N=35 | 30 s → N=70 | 60 s → N=140",
       rows: [
-        ["Significado de dedtln", "'Duración estándar de todas las notas' = 1.0 quarter length (una negra musical ≈ 0.4286 segundos a 140 BPM)."],
-        ["Rango real de N", "Con el mínimo duracion = 3 s → N = 7 notas/canal. Con duracion = 10 s → N = 23. Con el máximo duracion = 60 s → N = 140 notas/canal."],
-        ["Recorte final", "Si N × 0.42857 s roza el borde, envoltorio_para_los_varios_wav recorta exactamente en duracion_s × 44100 muestras."]
+        ["Por qué división entera // 1.0", "Trunca la última fracción de negra que no cabe completa en duracion (ej. en 10 s caben 23.33 negras → genera 23 notas = 9.857 s de notas + 0.143 s de cola final)."],
+        ["Duraciones exactas sin residuo", "Cuando duracion es múltiplo de 3 s (3, 6, 9, 12, ..., 60 s), duracion × 140 / 60 es un entero exacto (7, 14, 21, ..., 140 negras)."]
       ]
     },
     {
       cat: "matematicas",
       tag: "Geometría modular · L266, L373",
-      pill: "Anillo Z_7",
+      pill: "Métrica en Z_7",
       pillCls: "comp-pill--const",
-      title: "15. Métrica de distancia circular en el anillo Z_7",
-      ref: "calcular_la_disancia_entre_dos_grado(a, b) -> min(diff, 7 - diff)",
-      snippet: "diff = abs(a - b) % 7\ndist = min(diff, 7 - diff)  # rango posible: {0, 1, 2, 3}",
+      title: "22. Distancia geodésica en el grupo cíclico Z_7",
+      ref: "diff = abs(a - b) % 7 · dist = min(diff, 7 - diff)",
+      snippet: "Salto 3a (+2): min(2, 5) = 2\nSalto 5a (+4): min(4, 3) = 3\nSalto 7a (+6): min(6, 1) = 1  ← ¡el más cercano!",
       rows: [
-        ["Por qué es circular", "En una escala heptatónica el grado 6 (séptima, ej. B3) es vecino directo del grado 0 (tónica C3) al cerrar el ciclo."],
-        ["Consecuencia clave en Backtracking", "3ª (+2) tiene dist = min(2,5) = 2; 5ª (+4) tiene dist = min(4,3) = 3; ¡y 7ª (+6) tiene dist = min(6,1) = 1! Por eso el DFS explora 7ª primero."],
-        ["Diámetro máximo", "Ningún par de notas en una escala de 7 grados puede estar a más de 3 pasos circulares."]
+        ["Propiedades métricas", "Cumple no-negatividad, identidad d(a,a)=0, simetría d(a,b)=d(b,a) y desigualdad triangular sobre el ciclo de 7 grados."],
+        ["Intuición musical clave", "Subir 6 grados en una escala de 7 notas equivale a bajar apenas 1 grado hacia atrás (ej. de C a B hay 1 paso diatónico en el ciclo). Por eso 7a tiene costo 1."]
       ]
     },
     {
       cat: "matematicas",
-      tag: "Optimización · L272, L461",
-      pill: "Función de costo",
+      tag: "Optimización · L272",
+      pill: "Suma ponderada",
       pillCls: "comp-pill--linear",
-      title: "16. Función objetivo del Voraz vs. desempate de Backtracking",
-      ref: "prioridad = -(dist_objetivo + 0.5 * dist_anterior) · (-orden_de_elegir_el_grado)",
-      snippet: "Voraz: max -(d_obj + 0.5*d_ant)\nDFS sort: (dist, -orden[etiq], etiq, grado_cand)",
+      title: "23. Función multiobjetivo del Voraz y sensibilidad de factor_paso = 0.5",
+      ref: "prioridad = -(dist_objetivo + factor_paso * dist_anterior)",
+      snippet: "J(g) = 1.0 · d(g, g_obj) + 0.5 · d(g, g_ant)   →   max -J(g)",
       rows: [
-        ["Truco del signo negativo", "Queremos minimizar penalización (d_obj + 0.5·d_ant ≥ 0). Al multiplicarla por -1, el costo 0 se vuelve prioridad 0.0 (máxima en HeapMax)."],
-        ["Rol de factor_paso = 0.5", "Una desviación de 1 grado respecto al acorde pesa el doble (1.0) que moverse 1 grado desde la nota anterior (0.5): prioriza armonía sobre inercia."],
-        ["Desempate en Backtracking", "orden_de_elegir_el_grado = {'3a':1, '5a':2, '7a':3}; al ordenar con signo negativo (-orden), ante igual distancia prefiere el intervalo mayor."]
+        ["Por qué d_obj gana siempre en el Voraz puro", "Si elegimos g = g_obj, d_obj = 0 y el costo es 0.5 · d(g_obj, g_ant). Por desigualdad triangular, para cualquier otro grado g se cumple d(g, g_obj) + 0.5·d(g, g_ant) >= 0.5·d(g_obj, g_ant): ¡con factor_paso <= 1.0 el óptimo local siempre incluye a g_obj!"],
+        ["Cuándo cambiaría de nota", "Si factor_paso fuera > 1.0 (ej. 2.0), la inercia melódica pesaría más que el acorde y elegiría grados intermedios de paso."]
       ]
     },
     {
       cat: "matematicas",
-      tag: "Armonía · L240–243, L361",
-      pill: "Progresiones clásicas",
+      tag: "Orden total · L461–463",
+      pill: "Tupla lexicográfica",
       pillCls: "comp-pill--const",
-      title: "17. Codificación numérica de La Folía y Quintas Descendentes",
+      title: "24. Ordenamiento lexicográfico de ramas en Backtracking",
+      ref: "candidatos_ordenados.append((dist, -orden_de_elegir_el_grado[etiqueta], etiqueta, grado_cand))",
+      snippet: "7a: (1, -3, '7a', g)  <  3a: (2, -1, '3a', g)  <  5a: (3, -2, '5a', g)",
+      rows: [
+        ["Cómo compara .sort() en Python", "Compara componente a componente: primero menor dist; si hubiera empate en dist, menor -orden (es decir, mayor preferencia '7a':3 > '5a':2 > '3a':1)."],
+        ["Por qué acelera la poda", "Explorar primero las ramas de costo +1 encuentra rápidamente una primera hoja de costo muy bajo (~4/3 · R), activando la poda en casi todo el resto del árbol."]
+      ]
+    },
+    {
+      cat: "matematicas",
+      tag: "Armonía · L240–243",
+      pill: "Teoría tonal",
+      pillCls: "comp-pill--const",
+      title: "25. Estructura armónica de La Folía y el Ciclo de Quintas",
       ref: "progresion_folia = [0,4,0,6,2,6,0,4] · progresion_quintas = [0,3,6,2,5,1,4]",
-      snippet: "Folía (mayor):   I - V - I - VII - III - VII - I - V\nQuintas (menor): i - iv - VII - III - VI - ii° - V",
+      snippet: "En Do mayor: C - G - C - B - E - B - C - G  (8 pulsos)\nEn La menor: A - D - G - C - F - B - E      (7 pulsos, saltos de +3 mod 7 = cuarta asc / quinta desc)",
       rows: [
-        ["Qué representan los números", "Son índices 0..6 sobre escala_actual: 0=tónica (I), 2=mediante (III), 3=subdominante (IV), 4=dominante (V), 6=séptimo grado (VII)."],
-        ["Ciclo periódico", "Se indexan con paso_idx % len(progresion) (ciclo de 8 pulsos en mayor y de 7 pulsos en menor)."],
-        ["Intervalos en Backtracking", "Sumar +2, +4 o +6 módulo 7 sobre grado_base equivale exactamente a saltar a la 3ª, 5ª o 7ª diatónica dentro de la escala."]
+        ["Simetría matemática de Quintas", "En Z_7, sumar +3 módulo 7 genera todos los residuos porque mcd(3, 7) = 1: recorre los 7 grados de la escala sin repetir ninguno antes de cerrar el ciclo."],
+        ["Carácter de La Folía", "Uno de los ostinatos europeos más antiguos (s. XV–Barroco): alterna tónica (0) y tensión dominante/sensible (4 y 6) pasando por mediante (2)."]
       ]
     },
     {
       cat: "matematicas",
-      tag: "Protocolo MIDI · L150–155, L545",
-      pill: "General MIDI 1.0",
+      tag: "Acústica / MIDI · L44, 150, 545",
+      pill: "Estándar MIDI 1.0",
       pillCls: "comp-pill--const",
-      title: "18. Mensajes MIDI en hexadecimal (0xC0) y los 4 timbres",
-      ref: "synth.process_midi_message(channel, 0xC0, program, 0)",
-      snippet: "ch 0: prog 35 (Fretless Bass)     | ch 1: prog 26 (Jazz Guitar)\nch 2: prog 14 (Tubular Bells)     | ch 3: prog 114 (Steel Drums)",
+      title: "26. Acústica MIDI: Temperamento igual, 0xC0 y los 4 programas GM",
+      ref: "f(m) = 440 · 2^((m - 69) / 12) Hz · base_midi = 48 (C3 ≈ 130.81 Hz)",
+      snippet: "ch0: Fretless Bass (35) | ch1: Electric Guitar Jazz (26)\nch2: Tubular Bells (14) | ch3: Steel Drums (114) | vel = 70/127",
       rows: [
-        ["Qué es 0xC0", "En la especificación MIDI, el byte de estado 0xC0 (192 decimal) es el comando Program Change: cambia el instrumento (patch) del canal."],
-        ["Velocidad fija 70", "velocity = 70 (en rango MIDI 0..127) corresponde a una dinámica mezzoforte equilibrada para que ningún canal sature la mezcla."],
-        ["Fórmula nota → MIDI", "C3 = 48, C#3 = 49, ..., B3 = 59. La frecuencia acústica asociada es f = 440 × 2^((midi - 69)/12) Hz."]
+        ["Rango de frecuencias de octava 3", "Desde C3 (MIDI 48 → 130.81 Hz) hasta B3 (MIDI 59 → 246.94 Hz)."],
+        ["Byte de estado 0xC0", "En binario 1100_0000: el nibble alto 0xC indica Program Change; MeltySynth recibe el canal por separado y asigna patch_number = program."]
       ]
     },
     {
       cat: "matematicas",
-      tag: "DSP / Audio · L539, L575–639",
-      pill: "44.1 kHz · PCM 16-bit",
+      tag: "Probabilidad · L76–133",
+      pill: "Varianza σ² = k",
       pillCls: "comp-pill--linear",
-      title: "19. Teorema de Nyquist, cuantización PCM 16-bit y clipping",
-      ref: "sample_rate = 44100 · np.clip(stereo * 32767.0, -32768, 32767).astype(np.int16)",
-      snippet: "f_Nyquist = 44100 / 2 = 22 050 Hz (cubre todo el oído humano 20 Hz..20 kHz)",
+      title: "27. Propiedades estadísticas de la caminata gaussiana",
+      ref: "X_0 ~ U(-1, 1) · X_k = X_0 + ∑_{j=1}^k Z_j con Z_j ~ N(0, 1)",
+      snippet: "E[X_k | X_0] = X_0   |   Var(X_k | X_0) = k · paso² = k",
       rows: [
-        ["Por qué 44 100 Hz", "Estándar de calidad CD: por el teorema de muestreo de Nyquist-Shannon reconstruye sin aliasing frecuencias de hasta 22.05 kHz."],
-        ["Escalado × 32767", "Un entero con signo de 16 bits abarca [-32768, 32767] (~96 dB de rango dinámico). Multiplicar [-1.0, 1.0] por 32767 aprovecha toda la resolución."],
-        ["Por qué np.clip es vital", "Sin np.clip, si 4 instrumentos suman > 1.0, el casteo a int16 sufriría desbordamiento entero (wrap-around), produciendo chasquidos digitales severos."]
+        ["Difusión proporcional a √k", "La desviación estándar crece como √k (a los 100 pasos es ±10.0), pero el módulo % 6 envuelve ese espacio infinito sobre un cilindro finito de 6 notas."],
+        ["Independencia entre canales", "Las 4 llamadas a movimiento_browniano_* consumen muestras frescas e independientes del generador Mersenne Twister."]
+      ]
+    },
+    {
+      cat: "matematicas",
+      tag: "DSP · L539, L637",
+      pill: "Nyquist + PCM16",
+      pillCls: "comp-pill--linear",
+      title: "28. Muestreo a 44.1 kHz, rango dinámico de 96 dB y saturación (clip)",
+      ref: "stereo_pcm16 = np.clip(stereo * 32767.0, -32768, 32767).astype(np.int16)",
+      snippet: "SNR_16bit ≈ 6.02 × 16 + 1.76 = 98.08 dB  |  f_max = 22 050 Hz",
+      rows: [
+        ["Por qué × 32767.0 y clip en -32768", "En complemento a dos de 16 bits el rango representable es [-2^15, 2^15 - 1] = [-32768, 32767]; multiplicar por 32767 mantiene simetría entre semiciclos positivos y negativos."],
+        ["Qué evita np.clip", "En C/NumPy, int16(33000) desborda por wrap-around a -32536 (inversión instantánea de fase = estallido audible); np.clip lo limita limpiamente al techo."]
+      ]
+    },
+    {
+      cat: "matematicas",
+      tag: "Formato binario · L639",
+      pill: "44 + 4·S bytes",
+      pillCls: "comp-pill--linear",
+      title: "29. Ecuación exacta del peso en disco del archivo RIFF/WAVE",
+      ref: "Bytes = 44 (cabecera RIFF/fmt/data) + S × 2 canales × 2 bytes",
+      snippet: "Tasa de bits = 44 100 × 2 × 16 = 1 411 200 bits/s = 176 400 bytes/s\nPara 10 s: 44 + 1 764 000 = 1 764 044 bytes (1.68 MB)",
+      rows: [
+        ["Cabecera estándar de 44 bytes", "Contiene 'RIFF', tamaño total - 8, 'WAVE', subchunk 'fmt ' (PCM=1, AudioFormat=1, NumChannels=2, SampleRate=44100, ByteRate=176400, BlockAlign=4, BitsPerSample=16) y 'data'."],
+        ["Crecimiento lineal exacto", "Cada segundo adicional añade exactamente 176.4 KB por archivo (529.2 KB sumando los 3 archivos .wav)."]
+      ]
+    },
+    {
+      cat: "matematicas",
+      tag: "Rítmica · L391–401",
+      pill: "Densidad 25/12",
+      pillCls: "comp-pill--const",
+      title: "30. Densidad polifónica media de los turnos modulares",
+      ref: "Suma armónica parcial: 1/1 + 1/2 + 1/3 + 1/4 = 25/12 ≈ 2.083 voces/pulso",
+      snippet: "Bruto: 4.00 voces/pulso | Voraz: 3.00 voces/pulso | Backtracking: 2.08 voces/pulso",
+      rows: [
+        ["Comparación cuantitativa de las 3 mezclas", "En aleatorio_bruto suenan siempre los 4 canales (4.0 voces); en voraz suenan 4 en pares y 2 en impares (promedio 3.0); en backtracking el promedio cae a 2.083 voces por pulso, dando máxima claridad."]
       ]
     },
 
-    // --- COMPLEJIDAD AL MICROSCOPIO (5) ---
+    // =====================================================
+    // 4. COMPLEJIDAD EXACTA Y DEMOSTRACIONES (10 FICHAS)
+    // =====================================================
     {
       cat: "complejidad",
-      tag: "Análisis exacto · TXT L12–14",
+      tag: "Demostración · TXT L12–14",
       pill: "T(N) = 40N - 3",
       pillCls: "comp-pill--linear",
-      title: "20. De dónde sale exactamente 40N - 3 en Movimiento Browniano",
-      ref: "ANALISIS_DE_COMPLEJIDAD.txt: 5 + 4(3N - 2) + 4N + 3N",
-      snippet: "Cálculo previo (bpm, ql, radio): 5 ops\n4 llamadas brownianas: 4(3N - 2) + comprensiones de canal y aislados → Θ(N)",
+      title: "31. Derivación término a término de 40N - 3 (Movimiento Browniano)",
+      ref: "ANALISIS_DE_COMPLEJIDAD.txt: 5 + 4(3N - 2) + 4(4N) + 4(3N) / conteo elemental",
+      snippet: "5 ops previas (L68-72) + 4 canales × [bucle gauss (3N-2) + listas canal y aislados] → Θ(N)",
       rows: [
-        ["Desglose paso a paso", "5 asignaciones aritméticas iniciales + 4 ejecuciones del bucle de (N - 1) pasos gaussianos + comprensiones de lista de longitud N para canal_* y valors_aislados_*."],
-        ["Comportamiento asintótico", "Tanto el mejor como el peor y el caso promedio ejecutan exactamente el mismo número de iteraciones: es Θ(N) estricto."],
-        ["Con N = 140 (60 s)", "Apenas ~5 597 operaciones elementales (< 1 milisegundo en Python)."]
+        ["De dónde sale el -3", "Cada función browniana inicializa valores=[inicio] y actual=inicio (1 paso base) y ejecuta el bucle exactamente (N - 1) veces: 5 + 4(... - 2) produce la constante -3."],
+        ["Cota estrecha Θ(N)", "No tiene ramas condicionales dependientes de los valores aleatorios: mejor caso = peor caso = caso promedio = Θ(N)."]
       ]
     },
     {
       cat: "complejidad",
-      tag: "Análisis exacto · TXT L21–24",
+      tag: "Demostración · TXT L21–24",
       pill: "T(N) ≈ 240N",
       pillCls: "comp-pill--linear",
-      title: "21. De dónde sale 240N en el Algoritmo Voraz con HeapMax",
-      ref: "ANALISIS_DE_COMPLEJIDAD.txt: 2·2N + N(12G + 5 log_2 G + 6) con G = 7",
-      snippet: "Con G = 7 fijo: 12(7) + 5·log2(7) + 6 ≈ 84 + 14 + 6 = 104 ops/paso × 2 canales + voces complementarias ≈ 240N",
+      title: "32. Derivación término a término de 240N (Algoritmo Voraz + HeapMax)",
+      ref: "ANALISIS_DE_COMPLEJIDAD.txt: con G = 7 constante → O(N)",
+      snippet: "Por pulso: evaluar 7 grados + construir_heap(7) + extraer_maximo() ≈ 104 ops\n2 canales voraces (~208N) + 2 canales complementarios (~32N) ≈ 240N",
       rows: [
-        ["Por qué se evalúa 2 veces", "algoritmo_voraz_para_aproximar se ejecuta para guitarra y para campana; luego la función complementaria recorre N pasos para bajo y steel drums."],
-        ["Lección clave de análisis", "Una cota con log G NO implica O(N log N) cuando G no crece con la entrada: como la escala musical siempre tiene 7 notas, G es O(1)."],
-        ["Con N = 140 (60 s)", "~33 600 operaciones elementales: instantáneo en cualquier CPU."]
+        ["Por qué NO es O(N log N)", "log₂(G) = log₂(7) ≈ 2.807 es una constante fija del dominio musical, NO crece cuando el usuario aumenta duracion de 3 s a 60 s."],
+        ["Cuándo sería O(N log G)", "Solo si el tamaño de la escala G fuera un parámetro variable de entrada que tendiera a infinito."]
       ]
     },
     {
       cat: "complejidad",
-      tag: "Demostración · L217–219",
+      tag: "Teorema clásico · L217–219",
       pill: "Floyd · O(G)",
       pillCls: "comp-pill--const",
-      title: "22. Por qué construir_heap() cuesta O(G) y no O(G log G)",
+      title: "33. Demostración formal de que construir_heap() es O(G) y no O(G log G)",
       ref: "for i in range((self.tamano // 2) - 1, -1, -1): self.hundir(i)",
-      snippet: "Suma de alturas en árbol binario completo: ∑ (G / 2^(h+1)) · h ≤ G · ∑ (h / 2^(h+1)) = O(G)",
+      snippet: "Con G = 7: índices 3, 4, 5, 6 son hojas (0 swaps).\nSolo ejecuta hundir(2) [alt 1], hundir(1) [alt 1] y hundir(0) [alt 2] → ¡máx 4 intercambios!",
       rows: [
-        ["Idea clave", "La mitad de los nodos (hojas, índices G//2 .. G-1) ya cumplen ser heaps triviales y ni siquiera se tocan; solo se hunden los nodos internos."],
-        ["Con G = 7 nodos", "(7 // 2) - 1 = 2: construir_heap() únicamente llama a hundir(2), hundir(1) y hundir(0) (¡solo 3 llamadas en total!)."],
-        ["Extracción posterior", "extraer_maximo() intercambia la raíz con el último y ejecuta 1 solo hundir(0) de altura máxima ⌊log₂ 6⌋ = 2."]
+        ["Serie convergente", "En cualquier heap de tamaño G, a altura h hay a lo sumo ⌈G / 2^(h+1)⌉ nodos, y ∑_{h=0}^∞ h / 2^(h+1) = 1, por lo que el trabajo total está acotado por O(G)."],
+        ["Comparación contra insertar G veces", "Insertar 7 veces con flotar recorrería desde las hojas hacia arriba; construir_heap de abajo hacia arriba ahorra trabajo porque la mayoría de nodos están abajo."]
       ]
     },
     {
       cat: "complejidad",
-      tag: "Análisis exacto · L428–482, TXT L52",
-      pill: "Θ(3^N) vs ≤ 4000",
+      tag: "Cotas DFS · L428–482",
+      pill: "Ω(N) .. O(3^N)",
       pillCls: "comp-pill--exp",
-      title: "23. Cota teórica Θ(3^N) vs. comportamiento real con poda y tope",
-      ref: "poda_de_backtracking(..., max_nodos=4000)",
-      snippet: "Sin poda (N=23): 3^23 = 94 143 178 827 hojas\nSin poda (N=140): 3^140 ≈ 4.81 × 10^66 hojas (más que átomos en una galaxia)",
+      title: "34. Mejor caso, peor caso teórico y cota práctica del Backtracking",
+      ref: "R_bajo=N | R_guit=⌈N/2⌉ | R_camp=⌈N/3⌉ | R_drums=⌈N/4⌉",
+      snippet: "Mejor caso: Ω(N) (si la 1ª rama da costo 0 o podas inmediatas)\nPeor sin poda: O(3^R_inst) ≤ O(3^N) | Peor real en código: O(N + max_nodos) con max_nodos=4000",
       rows: [
-        ["Qué reduce el árbol antes del tope", "1) Turnos mod 2, 3 y 4 saltan pasos sin ramificar; 2) r3=2, r5=2 y r7=1 reducen hijos válidos de 3 a 1; 3) Ordenar primero 7a (+1) halla rápido una cota baja y poda ramas caras."],
-        ["Qué garantiza max_nodos = 4000", "Actúa como interruptor de tiempo real (anytime algorithm): devuelve la mejor secuencia hallada hasta el nodo 4 000 sin colgar jamás el programa."],
-        ["Red de seguridad (L484–491)", "Si duracion fuera enorme y ni siquiera completara la 1ª hoja en 4 000 nodos, rellena determinísticamente con 3a y 'rest'."]
+        ["Efecto real de los turnos en 10 s (N=23)", "Steel drums solo decide en pasos 0,4,8,12,16,20 (6 pasos activos → máx 3^6 = 729 hojas incluso SIN poda: ¡explora el árbol entero exacto sin tocar el tope 4000!)."],
+        ["Campana en 10 s (N=23)", "Solo decide en 8 pasos activos (3^8 = 6 561 hojas sin poda; con restricciones y poda visita apenas unas decenas de nodos y halla el óptimo exacto)."]
       ]
     },
     {
       cat: "complejidad",
-      tag: "Memoria · L575–639",
-      pill: "Espacio O(N + S)",
+      tag: "Síntesis · L533–640",
+      pill: "Θ(N log N + S)",
       pillCls: "comp-pill--nlogn",
-      title: "24. Análisis espacial completo: RAM y almacenamiento",
-      ref: "Listas O(N) + Diccionarios O(1)/O(N) + Buffers O(S)",
-      snippet: "Pico RAM (60 s): left(10.58 MB) + right(10.58 MB) + stereo(21.17 MB) + pcm16(10.58 MB) ≈ 53 MB pico",
+      title: "35. Desglose completo de complejidad del motor de audio WAV",
+      ref: "E ≤ 8N eventos MIDI · K ≤ N + 2 instantes únicos · S = 44100 · duracion_s",
+      snippet: "1) Armar eventos: O(N) | 2) Encolar muestras: O(N) | 3) sorted(instantes): O(K log K) = O(N log N)\n4) synth.render acumulado: ∑ tramo = S → O(S) | 5) column_stack + clip + write: O(S)",
       rows: [
-        ["Fase simbólica (notas)", "Para 60 s (N = 140), todas las listas de notas, tuplas, pila DFS y eventos ocupan menos de 150 KB en total."],
-        ["Fase acústica (audio)", "Domina por completo el término S = 44 100 × duracion_s porque cada segundo exige 44 100 muestras por canal."],
-        ["Reutilización secuencial", "Como envoltorio_para_los_varios_wav es una función local, Python libera los buffers de un .wav al terminar antes de sintetizar el siguiente."]
+        ["Por qué ∑ tramo = S exactamente", "Los intervalos [instantes[idx], instantes[idx+1]) forman una partición telescópica exacta de [0, num_muestras]: la suma de todos los count enviados a render() es exactamente S."],
+        ["Ordenamiento interno por muestra", "En cada instante hay a lo sumo 8 eventos (4 'off' + 4 'on' de los 4 canales), así que sorted(acciones_por_muestra[t]) cuesta O(1) por instante."]
+      ]
+    },
+    {
+      cat: "complejidad",
+      tag: "Memoria · L1–679",
+      pill: "Espacio Θ(N + S)",
+      pillCls: "comp-pill--nlogn",
+      title: "36. Presupuesto exacto de memoria RAM en cada fase",
+      ref: "Escalas O(1) + Listas O(N) + Pila DFS O(N) + SoundFont O(SF2) + Buffers O(S)",
+      snippet: "SoundFont sf2 (1 vez): ~141 MB | Buffers por llamada WAV (60 s): ~53 MB pico (liberados al salir)",
+      rows: [
+        ["Por qué NO se triplica la RAM de los 3 WAV", "left, right, stereo y stereo_pcm16 son variables locales de envoltorio_para_los_varios_wav: al retornar cada llamada su conteo de referencias cae a 0 y CPython reutiliza esa RAM."],
+        ["Complejidad espacial auxiliar de algoritmos", "HeapMax usa O(G) = O(1) espacio auxiliar; poda_de_backtracking usa O(N) para secuencia_actual, mejor_secuencia y la pila de llamadas."]
+      ]
+    },
+    {
+      cat: "complejidad",
+      tag: "Reconciliación · ANALISIS_DE_COMPLEJIDAD.txt",
+      pill: "Guía del .TXT",
+      pillCls: "comp-pill--exp",
+      title: "37. Cómo explicar cada línea de ANALISIS_DE_COMPLEJIDAD.txt si el jurado pregunta",
+      ref: "ANALISIS_DE_COMPLEJIDAD.txt L1–52 vs análisis formal estricto",
+      snippet: "TXT L32 'Activación de buffers: Constante' → 3 líneas fijas de código Python, que reservan O(S) muestras en C.\nTXT L38 '2 log_2' y L44-50 'Costo lineal' → lineal respecto al tamaño del audio S + ordenamiento log-lineal.",
+      rows: [
+        ["Cómo responder con elegancia", "En el .txt inicial resumimos por bloque sintáctico (por ejemplo llamar a np.zeros es 1 instrucción de alto nivel y exportar recorre linealmente el audio S), y en la ecuación final L52 consolidamos todo rigurosamente como Θ(3^N + N log N + S)."],
+        ["Por qué L52 iguala a Θ(3^N)", "Matemáticamente, cuando N → ∞ sin tope de nodos, la exponencial 3^N domina asintóticamente a cualquier polinomio o N log N; en la práctica, con max_nodos = 4000, domina O(S)."]
+      ]
+    },
+    {
+      cat: "complejidad",
+      tag: "Tiempo real (Wall-clock)",
+      pill: "Cuello de botella",
+      pillCls: "comp-pill--nlogn",
+      title: "38. ¿Dónde se va realmente el 98% del tiempo al ejecutar el programa?",
+      ref: "Python puro en meltysynth._render_block() vs algoritmos simbólicos",
+      snippet: "Browniano + Voraz + Backtracking (4 canales, 10 s): < 0.05 segundos\n3 × synth.render() en Python puro (3 × 441 000 muestras): varios segundos de CPU",
+      rows: [
+        ["Explicación de sistemas", "Aunque O(S) es lineal, S = 441 000 por archivo (1.32 millones de muestras en los 3 WAV) y meltysynth interpola osciladores, envolventes y filtros biquad en bucles de Python interpretado."],
+        ["Conclusión clave", "Los algoritmos de estructuras de datos terminan casi instantáneamente; la espera percibida en consola corresponde a la síntesis DSP en Python puro."]
+      ]
+    },
+    {
+      cat: "complejidad",
+      tag: "Tabla maestra · 16 funciones",
+      pill: "O / Ω / Θ",
+      pillCls: "comp-pill--const",
+      title: "39. Resumen formal O, Ω y Θ de todas las operaciones del código",
+      ref: "Referencia rápida para preguntas relámpago de pizarrón",
+      snippet: "padre/izq/der/intercambiar: Θ(1) | flotar/hundir/insertar/extraer: O(log G), Ω(1) | construir_heap: Θ(G)\nescala_por_intervalos / repositorio: Θ(1) | browniano: Θ(N) | voraz: Θ(N) | dfs: Ω(N), O(3^N) | wav: Θ(N log N + S)",
+      rows: [
+        ["Por qué flotar y hundir tienen Ω(1)", "En el mejor caso el elemento insertado ya es menor que su padre (0 intercambios → Ω(1)), y al extraer puede detenerse en la primera comparación si ya supera a sus hijos."],
+        ["Por qué construir_heap es Θ(G)", "Recorre obligatoriamente los G//2 nodos internos haciendo al menos 1 comparación por nodo interno (Ω(G)) y a lo sumo 2G comparaciones (O(G))."]
+      ]
+    },
+    {
+      cat: "complejidad",
+      tag: "Experimento mental · Escalabilidad",
+      pill: "N → ∞",
+      pillCls: "comp-pill--exp",
+      title: "40. ¿Cómo escala el sistema si variamos cada parámetro independientemente?",
+      ref: "Duración D · Tempo BPM · Tamaño de escala G · Frecuencia de muestreo Fs",
+      snippet: "N = ⌊D · BPM / 60⌋   |   S = D · Fs   |   T_total_práctico = O(N·G + min(3^N, M) + N log N + S)",
+      rows: [
+        ["Si sube BPM al doble (280 BPM) con misma duración D", "N se duplica (doble de notas y eventos MIDI), pero S (muestras de audio) permanece exactamente igual."],
+        ["Si sube Fs a 96 000 Hz con misma duración D", "N no cambia en absoluto (mismas decisiones de Voraz y Backtracking), pero S y el tamaño del .wav crecen 2.18×."]
       ]
     },
 
-    // --- RADIOGRAFÍA DEL CÓDIGO (5) ---
+    // =====================================================
+    // 5. RADIOGRAFÍA QUIRÚRGICA L1–L679 + MELTYSYNTH (12 FICHAS)
+    // =====================================================
     {
       cat: "radiografia",
-      tag: "Mapa del archivo · 679 líneas",
-      pill: "11 Bloques",
+      tag: "Mapa general · L1–679",
+      pill: "11 Secciones",
       pillCls: "comp-pill--const",
-      title: "25. Mapa estructural completo de PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
-      ref: "Recorrido exacto de la línea 1 a la 679",
-      snippet: "L1–7 Imports | L8–31 Entradas | L33–64 Escalas | L66–146 Browniano | L148–155 Canales Bruto\nL157–340 HeapMax + Voraz | L343–520 Backtracking | L524–640 Envoltorio WAV | L643–679 Ejecución x3",
+      title: "41. Mapa arquitectónico exacto línea por línea del archivo principal",
+      ref: "PROYECTO_FINAL_MUSICA_ESTOCASTICA.py (679 líneas)",
+      snippet: "L1-6 Imports | L8-31 Inputs | L33-64 Escalas | L66-138 Browniano x4 | L140-155 Config Bruto\nL157-238 HeapMax | L240-339 Voraz + 3as | L343-520 Backtracking | L524-640 Motor WAV | L643-679 3 Renders",
       rows: [
-        ["L1–64 (Configuración)", "Importaciones, validación estricta con raise ValueError y preconstrucción de las 24 escalas en octava 3."],
-        ["L66–340 (Azar y Voraz)", "Cálculo de N desde BPM=140, 4 generadores brownianos, clases NodoHeap/HeapMax, aproximación voraz y voces en 3ª/rest."],
-        ["L343–679 (DFS y Audio)", "Función autocontenida poda_de_backtracking con 4 subfunciones anidadas, motor envoltorio_para_los_varios_wav y las 3 llamadas finales."]
+        ["Flujo de ejecución", "Es un script secuencial de arriba hacia abajo: pide 3 inputs en consola, precalcula estructuras globales, ejecuta los 3 modelos generativos en memoria y finalmente sintetiza los 3 archivos .wav en serie."]
       ]
     },
     {
       cat: "radiografia",
-      tag: "Catálogo de firmas · Código real",
-      pill: "16 Funciones/Métodos",
-      pillCls: "comp-pill--nlogn",
-      title: "26. Todas las funciones y métodos definidos en el proyecto",
-      ref: "PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
-      snippet: "escala_por_intervalos · construir_repositorio_escalas · movimiento_browniano_(x4)\npadre · izquierdo · derecho · HeapMax.(intercambiar, flotar, hundir, construir_heap, insertar, extraer_maximo)\nalgoritmo_voraz_para_aproximar · las_notas_de_bajo... · poda_de_backtracking · envoltorio_para_los_varios_wav",
+      tag: "Radiografía · L8–31",
+      pill: "Validación E/S",
+      pillCls: "comp-pill--const",
+      title: "42. Bloque de entradas y guardianes ValueError",
+      ref: "duracion (L10–14) · nota_para_la_escala (L18–23) · modo_de_la_escala (L26–29)",
+      snippet: "if duracion > 60: raise ValueError('El límite es de un minuto')\nif duracion < 3: raise ValueError('El timepo debe de ser al menos mayor a 3 segundo')",
       rows: [
-        ["Subfunciones clausuradas en DFS", "Dentro de poda_de_backtracking viven 5 funciones internas con acceso léxico a escala y secuencia_base (calcular_la_disancia..., obtener_grado..., en_que_orden..., reestricciones..., dfs)."],
-        ["Uso de nonlocal (L429)", "dfs declara nonlocal mejor_costo, mejor_secuencia, nodos_visitados, limite_alcanzado para actualizar cotas sin variables globales."],
-        ["Polimorfismo defensivo (L377–389)", "obtener_grado_y_duracion soporta tanto enteros puros (valors_aislados_*) como tuplas ('E3', 1.0) o (2, None)."]
+        ["Por qué tuplas en notas_validas y modos_validos", "Usar tuplas inmutables ('C', ..., 'B') y ('mayor', 'menor') protege las constantes de configuración contra mutaciones accidentales."],
+        ["Fallo rápido (Fail-Fast)", "Valida cada entrada apenas se ingresa, antes de cargar el SoundFont de 141 MB o construir diccionarios."]
       ]
     },
     {
       cat: "radiografia",
-      tag: "Detalles finos · Auditoría",
-      pill: "4 Curiosidades Reales",
-      pillCls: "comp-pill--exp",
-      title: "27. Detalles sutiles de Python en el código (oro para preguntas difíciles)",
-      ref: "L77, L88, L50, L409 de PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
-      snippet: "1) int(x*100) % 6 -> índices 0..5   | 2) inicio=random.uniform(-1,1) en def\n3) base_midi + (midi % 12) -> C3..B3 | 4) max_septimas: int = 1 (L409)",
+      tag: "Radiografía · L33–64",
+      pill: " Construcción tonal",
+      pillCls: "comp-pill--const",
+      title: "43. Cómo funciona exactamente el plegado de octava en L44–51",
+      ref: "base_midi = 12 * (octava + 1) · midi_fijado = base_midi + (p_nota.midi % 12)",
+      snippet: "Ej. G mayor (octava 3): G3(55), A3(57), B3(59), C4(60)→48(C3), D4(62)→50(D3), E4(64)→52(E3), F#4(66)→54(F#3)",
       rows: [
-        ["Módulo 6 en Browniano (L88)", "int(x*100) % 6 produce grados 0..5 (6 de las 7 notas) en el aleatorio bruto; luego Voraz y Backtracking sí operan módulo 7 completo (0..6)."],
-        ["Valor por defecto en def (L77)", "inicio=random.uniform(-1.0, 1.0) se evalúa al definir cada función. Como hay 4 funciones separadas y cada una se llama 1 sola vez, las 4 pistas tienen semillas iniciales distintas."],
-        ["Plegado de octava (L50) y max_7a (L409)", "midi_fijado mantiene todas las notas dentro de MIDI 48..59 (octava 3 cerrada); y en L409 max_septimas vale 1 aunque README mencione dos."]
+        ["Qué logra midi_fijado", "Cuando la transposición cruza de B3 (59) a C4 (60), p_nota.midi % 12 vuelve a 0 y lo pliega a 48 (C3): mantiene las 7 notas confinadas en una única octava cerrada."],
+        ["Detalle de music21", "pitch.Pitch(midi=51).nameWithOctave devuelve 'E-3' (Mi bemol 3 en notación music21); como todo el programa usa las cadenas devueltas por escala_actual, todas las llaves coinciden siempre."]
       ]
     },
     {
       cat: "radiografia",
-      tag: "Comportamiento · L257–284",
-      pill: "Determinismo armónico",
+      tag: "Radiografía · L66–155",
+      pill: "4 Generadores",
       pillCls: "comp-pill--linear",
-      title: "28. Qué toma exactamente el Voraz de la secuencia aleatoria base",
-      ref: "for paso_idx, (simbolo, dur_ql) in enumerate(secuencia_base)",
-      snippet: "if simbolo == 'rest' or simbolo is None: resultado.append((simbolo, dur_ql)); continue",
+      title: "44. Las 4 funciones brownianas y las listas paralelas canal_* / valors_aislados_*",
+      ref: "canal_bajo (tuplas nota, dur) vs valors_aislados_bajo (enteros 0..5)",
+      snippet: "canal_bajo = [(escala_actual[int(x * 100) % 6], dedtln) for x in resultado]\nvalors_aislados_bajo = [int(x * 100) % 6 for x in resultado]",
       rows: [
-        ["Cómo funciona en el código", "secuencia_base define cuántos pulsos N hay, la duración dur_ql de cada pulso y conserva cualquier silencio; en los pulsos activos evalúa los 7 grados frente a progresion[paso_idx] y grado_actual."],
-        ["Efecto musical resultante", "Guitarra y campana convergen a la conducción de voces ideal de La Folía o Quintas, contrastando de forma nítida con el caos de aleatorio_bruto.wav y las variaciones de backtracking.wav."]
+        ["Por qué guarda dos formatos", "canal_* ya tiene formato listo ('E3', 1.0) para renderizar aleatorio_bruto.wav directo; valors_aislados_* guarda los índices enteros crudos 0..5 para alimentar los algoritmos posteriores."],
+        ["Reasignación de variable resultado", "La variable global resultado se reutiliza limpiamente 4 veces seguidas (L87, L103, L119, L135), quedándose al final con la caminata de steel drums."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Radiografía · L289–296",
+      pill: "Pipeline Voraz",
+      pillCls: "comp-pill--linear",
+      title: "45. Preparación y normalización de secuencias en el bloque Voraz",
+      ref: "secuencia_guitarra_antes_del_voraz → secuencia_guitarra_algoritmo_voraz → sequence_guitarra_voraz",
+      snippet: "secuencia_guitarra_antes_del_voraz = [(escala_actual[idx % len(escala_actual)], dedtln) for idx in valors_aislados_guitarra]\nsequence_guitarra_voraz = [(simbolo, dedtln) for simbolo, _ in secuencia_guitarra_algoritmo_voraz]",
+      rows: [
+        ["Qué hacen L295–296", "Fuerzan explícitamente que todas las tuplas salientes tengan duración uniforme dedtln = 1.0 antes de generar las voces complementarias de bajo y percusión."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Radiografía · L377–389",
+      pill: "Polimorfismo",
+      pillCls: "comp-pill--const",
+      title: "46. Polimorfismo defensivo en obtener_grado_y_duracion(idx)",
+      ref: "Acepta int, (int, float), (str, float), (str, None) o cualquier valor inesperado",
+      snippet: "if isinstance(elem, int): return elem % num_grados, dur_defecto\nif isinstance(elem, tuple) and len(elem) == 2: ...",
+      rows: [
+        ["Por qué está escrita así", "Permite pasarle a poda_de_backtracking tanto listas de enteros puros (valors_aislados_bajo) como listas de tuplas estilo canal_bajo sin cambiar una sola línea."],
+        ["Fallback seguro a grado 0", "Si recibe una tupla con un símbolo desconocido o 'rest', retorna (0, dur_limpia) (tónica) en lugar de lanzar KeyError."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Radiografía · L422–483",
+      pill: "Clausura + nonlocal",
+      pillCls: "comp-pill--exp",
+      title: "47. Clausura léxica, nonlocal y doble barrera de poda en dfs()",
+      ref: "nonlocal mejor_costo, mejor_secuencia, nodos_visitados, limite_alcanzado",
+      snippet: "# Barrera 1 (al entrar, L434): if costo_acum >= mejor_costo: return\n# Barrera 2 (antes de bajar, L467): if nuevo_costo >= mejor_costo: continue",
+      rows: [
+        ["Por qué hay DOS podas de costo", "L467 (lookahead pruning) evita gastar append(), llamada recursiva e incremento de nodos_visitados si ya sabemos que el hijo empata o supera mejor_costo; L434 protege además las llamadas de pasos 'rest' o cambios de mejor_costo en ramas hermanas."],
+        ["Por qué >= y no >", "Si nuevo_costo == mejor_costo tampoco vale la pena explorarlo: ya tenemos guardada una secuencia válida con ese mismo costo mínimo."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Radiografía · L526–572",
+      pill: "Traducción a segundos",
+      pillCls: "comp-pill--linear",
+      title: "48. Cursor en negras (cursor_ql) a ventanas de tiempo en segundos",
+      ref: "onset_ql = cursor_ql · offset_ql = cursor_ql + dur_ql · onset_s = onset_ql * seg_por_ql_local",
+      snippet: "if simbolo != 'rest' and simbolo is not None:\n    midi_key = mapa_midi.get(simbolo) or int(pitch.Pitch(simbolo).midi)",
+      rows: [
+        ["Cómo maneja los silencios ('rest')", "Cuando simbolo == 'rest', NO agrega ningún evento MIDI a la lista eventos, pero SÍ avanza cursor_ql = offset_ql para que la siguiente nota entre en el tiempo exacto."],
+        ["Doble seguro en mapa_midi.get()", "Busca primero en O(1) en mapa_midi; si algún día entrara una nota de otra octava no precalculada, cae suavemente a pitch.Pitch(simbolo).midi."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Radiografía · L581–606",
+      pill: "Clamping de muestras",
+      pillCls: "comp-pill--linear",
+      title: "49. Conversión de segundos a muestras enteras y recorte de seguridad",
+      ref: "m_on = max(0, min(num_muestras, int(onset_s * sample_rate)))",
+      snippet: "if m_on < num_muestras: acciones_por_muestra[m_on].append(('on', ...))\nif m_off <= num_muestras and m_off > m_on: acciones_por_muestra[m_off].append(('off', ...))",
+      rows: [
+        ["Por qué m_on < num_muestras estricto", "Encender una nota exactamente en la última muestra num_muestras no tendría ninguna muestra restante para sonar."],
+        ["Por qué m_off <= num_muestras y m_off > m_on", "Permite apagar notas justo al borde final num_muestras y garantiza que toda nota encendida tenga duración positiva de al menos 1 muestra."]
       ]
     },
     {
       cat: "radiografia",
       tag: "Motor interno · meltysynth.py",
-      pill: "3 917 líneas Python",
+      pill: "3 917 líneas DSP",
       pillCls: "comp-pill--nlogn",
-      title: "29. Qué hace meltysynth.py por dentro cuando llamamos a render()",
-      ref: "meltysynth.py: SoundFont · Synthesizer · _VoiceCollection · _Oscillator · _BiQuadFilter",
-      snippet: "note_on -> _preset_lookup[(bank<<16)|patch] -> _RegionPair -> _Voice.start()\nrender -> _render_block (bloques internos) -> ADSR + LFO + filtro pasa-bajos -> mezcla estéreo",
+      title: "50. Cadena de síntesis interna de MeltySynth al ejecutar render()",
+      ref: "Synthesizer.render → _render_block (64 muestras) → _Voice.process → _write_block",
+      snippet: "Oscillator (interpolación wavetable SF2) → VolumeEnvelope (ADSR) → LFO (vibrato/mod) → BiQuadFilter (low-pass resonante) → Pan L/R × master_volume (0.5)",
       rows: [
-        ["Carga SF2 (L1662)", "SoundFont.from_file lee binariamente los chunks RIFF del archivo FluidR3_GM.sf2: muestras PCM reales grabadas de instrumentos y zonas de velocidad/tecla."],
-        ["Cadena DSP de cada voz", "Cada nota activa (_Voice) interpola la onda grabada (_Oscillator), la moldea con envolvente de volumen ADSR (_VolumeEnvelope), vibrato (_Lfo), filtro resonante (_BiQuadFilter) y paneo estéreo."],
-        ["Render por bloques (L3461)", "Aunque pidamos un tramo arbitrario tramo = t_sig - t_act, internamente sintetiza en bloques fijos (_block_size = 64 muestras) y copia el remanente exacto."]
+        ["Renderizado por bloques de 64 muestras", "En meltysynth.py L3461, _render_block sintetiza de 64 en 64 muestras para actualizar envolventes y filtros a tasa de control (~689 Hz) y interpola linealmente la ganancia (previous_gain → current_gain) para evitar clics."],
+        ["Búsqueda bit-wise de presets (L3247)", "Empaqueta banco y programa en un entero de 32 bits: preset_id = (bank_number << 16) | patch_number para buscar el timbre en O(1)."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Documentación · README.md L30–36",
+      pill: "Transparencia académica",
+      pillCls: "comp-pill--const",
+      title: "51. Declaración de IA y autoría intelectual del equipo",
+      ref: "README.md: sección DECLARACIÓN DE IA",
+      rows: [
+        ["Qué documenta el README", "1) Investigación de alternativas de síntesis en Python puro (eligiendo meltysynth) mientras music21 provino de investigación propia; 2) Apoyo con documentación de renderizado WAV y patrón de función envoltorio para no triplicar código; 3) Verificación de errores y casos límite."],
+        ["Núcleo algorítmico del curso", "La formulación del Movimiento Browniano, la implementación completa de NodoHeap/HeapMax, las progresiones armónicas y las reglas/poda del Backtracking articulan los temas centrales de Algoritmos y Estructuras de Datos."]
+      ]
+    },
+    {
+      cat: "radiografia",
+      tag: "Trazabilidad · propuesta/propuesta.pdf",
+      pill: "Alcance superado",
+      pillCls: "comp-pill--const",
+      title: "52. Relación exacta entre propuesta.pdf y la entrega final",
+      ref: "De generador textual de escalas a sintetizador algorítmico comparativo",
+      rows: [
+        ["Qué se conservó de la propuesta", "La construcción algorítmica de escalas mayores y menores por patrones de semitonos desde cualquier tónica (implementado en L35–64)."],
+        ["Cuánto creció el alcance", "En lugar de quedarse en imprimir notas en texto, se añadieron 4 instrumentos polifónicos, caminata browniana, HeapMax propio, Voraz armónico, Backtracking con Branch & Bound y renderizado DSP a WAV estéreo."]
       ]
     },
 
-    // --- LIBRERÍAS Y RECURSOS (5) ---
+    // =====================================================
+    // 6. LIBRERÍAS, SOUNDFONT Y ENTORNO (6 FICHAS)
+    // =====================================================
     {
       cat: "librerias",
-      tag: "Librería externa · L4",
+      tag: "Librería · L4",
       pill: "music21",
       pillCls: "comp-pill--const",
-      title: "30. music21 (módulos pitch e interval)",
+      title: "53. music21 (MIT): objetos Pitch e Interval",
       ref: "from music21 import interval, pitch",
       rows: [
-        ["De dónde sale", "Toolkit académico del MIT para musicología asistida por computadora."],
-        ["Uso exacto en el código", "pitch.Pitch(f'{tonica}{octava}'), interval.Interval(semitonos).transposePitch(p_base) y conversión de nombre ('C#3') a entero MIDI (49)."],
-        ["Dónde se aísla su costo", "Solo se invoca al inicio (escalas y mapa_midi); nunca dentro de los bucles críticos de Voraz, DFS ni renderizado de muestras."]
+        ["Qué resuelve exactamente", "Traduce nombres simbólicos ('C#3') a números MIDI (49) y aplica transposiciones cromáticas exactas con interval.Interval(semitonos).transposePitch(p_base)."],
+        ["Aislamiento de rendimiento", "music21 es pesado si se llama miles de veces; por eso el código lo confina al arranque (168 llamadas en escalas + 12 en mapa_midi = 180 llamadas fijas O(1))."]
       ]
     },
     {
       cat: "librerias",
-      tag: "Módulo local + Asset · L3, L645",
-      pill: "SoundFont GM",
+      tag: "Sintetizador · L3, L645",
+      pill: "meltysynth + SF2",
       pillCls: "comp-pill--nlogn",
-      title: "31. meltysynth.py + Banco FluidR3_GM.sf2",
-      ref: "import meltysynth as ms · ms.SoundFont.from_file('assets/FluidR3_GM.sf2')",
+      title: "54. meltysynth.py + FluidR3_GM.sf2 (Estándar SoundFont 2.01)",
+      ref: "ms.SoundFont.from_file('assets/FluidR3_GM.sf2') · ms.Synthesizer(sf2, settings)",
       rows: [
-        ["De dónde sale", "Port en Python puro del sintetizador MeltySynth (original de Sinshu) junto al banco estándar abierto FluidR3 General MIDI."],
-        ["Ventaja decisiva", "Cero compilación C/C++ y cero configuración de dispositivos MIDI virtuales en Windows/Linux/macOS: produce audio idéntico en cualquier máquina."],
-        ["Reutilización eficiente", "FluidR3_GM.sf2 (~141 MB) se carga en RAM una sola vez en L645 (sf2) y se pasa por referencia a las 3 llamadas de síntesis."]
+        ["Qué hay dentro de FluidR3_GM.sf2", "Un contenedor RIFF ('sfbk') con muestras reales grabadas en estudio de los 128 instrumentos General MIDI, puntos de loop y parámetros de envolvente/filtro."],
+        ["Por qué se carga 1 sola vez en L645", "Parsear el archivo binario .sf2 (~141 MB) toma memoria y disco; al guardar la instancia sf2 y pasarla por referencia a los 3 renders, solo se lee del disco una vez."]
       ]
     },
     {
       cat: "librerias",
-      tag: "Librería científica · L5",
+      tag: "Cálculo vectorial · L5",
       pill: "NumPy",
       pillCls: "comp-pill--linear",
-      title: "32. numpy (buffers y vectorización PCM)",
-      ref: "np.zeros · np.asarray · np.column_stack · np.clip · .astype(np.int16)",
+      title: "55. numpy: por qué usamos float32 en síntesis e int16 al exportar",
+      ref: "np.zeros(..., np.float32) · np.column_stack · np.clip · .astype(np.int16)",
       rows: [
-        ["De dónde sale", "Librería base de cálculo numérico en C para Python."],
-        ["Uso exacto en el código", "Reserva los buffers left/right en float32, los une en matriz estéreo (S, 2) y vectoriza la multiplicación ×32767, saturación y conversión a int16."],
-        ["Impacto en rendimiento", "Hacer el escalado y clip de 2.6 millones de muestras en un bucle Python tardaría segundos; vectorizado en NumPy toma pocos milisegundos."]
+        ["Ahorro del 50% de RAM frente a float64", "Por defecto np.zeros usa float64 (8 bytes); pedir explícitamente dtype=np.float32 corta a la mitad la memoria de left y right manteniendo 24 bits de mantisa (>140 dB, superior a los 96 dB de 16-bit PCM)."]
       ]
     },
     {
       cat: "librerias",
-      tag: "Librería científica · L6",
-      pill: "SciPy I/O",
+      tag: "Audio I/O · L6",
+      pill: "SciPy",
       pillCls: "comp-pill--linear",
-      title: "33. scipy.io.wavfile",
+      title: "56. scipy.io.wavfile.write: compatibilidad universal sin códecs",
       ref: "wavfile.write(ruta_wav, settings.sample_rate, stereo_pcm16)",
       rows: [
-        ["De dónde sale", "Submódulo de entrada/salida de señales de audio de SciPy."],
-        ["Qué escribe en disco", "Construye la cabecera binaria RIFF/WAVE de 44 bytes (formato PCM=1, 2 canales, 44 100 Hz, 176 400 bytes/s, 16 bits) seguida del volcado crudo de stereo_pcm16."]
+        ["Por qué WAV PCM int16 y no MP3/OGG", "WAV PCM 16-bit no tiene pérdida por compresión psicoacústica, no requiere instalar FFmpeg externo y es reproducible nativamente por Windows, macOS, Linux y navegadores HTML5."]
       ]
     },
     {
       cat: "librerias",
-      tag: "Biblioteca estándar · L1–2",
-      pill: "Python Stdlib",
+      tag: "Stdlib Python · L1–2",
+      pill: "CPython C-ext",
       pillCls: "comp-pill--const",
-      title: "34. random y collections.defaultdict",
-      ref: "random.uniform(-1.0, 1.0) · random.gauss(0.0, paso) · defaultdict(list)",
+      title: "57. random (Mersenne Twister) y collections.defaultdict",
+      ref: "random.uniform · random.gauss · defaultdict(list)",
       rows: [
-        ["Generador pseudoaleatorio", "Usa Mersenne Twister (período 2^19937 - 1) con transformación gaussiana para simular incrementos brownianos continuos."],
-        ["defaultdict(list)", "Crea automáticamente una lista vacía al acceder por primera vez a un índice de muestra m_on o m_off, simplificando el código de encolado."]
+        ["Mersenne Twister MT19937", "Generador estándar de Python implementado en C con período colosal 2^19937 - 1 y equidistribución en 623 dimensiones."],
+        ["defaultdict(list) en C", "Implementado en el módulo _collections en C: inserta y devuelve [] automáticamente cuando la clave m_on/m_off no existe aún."]
+      ]
+    },
+    {
+      cat: "librerias",
+      tag: "Entorno de ejecución",
+      pill: "Python ≥ 3.10",
+      pillCls: "comp-pill--const",
+      title: "58. Requisitos exactos de versión de Python y directorio de trabajo",
+      ref: "match command: (meltysynth.py L3279) · NodoHeap | None (L227) · list[str] (L43)",
+      rows: [
+        ["Por qué exige Python 3.10 o superior", "Tanto el operador unión de tipos X | None (PEP 604) en el script principal como la sentencia estructural match / case (PEP 634) dentro de meltysynth.py L3279 fueron introducidos en Python 3.10."],
+        ["Directorio de ejecución", "Debe ejecutarse posicionado en proyecto_final/ para que la ruta relativa 'assets/FluidR3_GM.sf2' (L645) resuelva directamente."]
       ]
     },
 
-    // --- DEFENSA / PREGUNTAS DE EXAMEN (6) ---
+    // =====================================================
+    // 7. MODO PARANOIA: AUDITORÍA FORENSE Y DETALLES OCULTOS (14 FICHAS)
+    // =====================================================
     {
-      cat: "defensa",
-      tag: "Pregunta de jurado #1",
-      pill: "Estructuras",
-      pillCls: "comp-pill--linear",
-      title: "35. ¿Por qué implementaron HeapMax desde cero en vez de usar heapq o max()?",
-      ref: "Defensa de diseño · L161–238",
-      rows: [
-        ["Respuesta directa", "1) En un curso de Algoritmos y Estructuras de Datos demuestra dominio real de árboles binarios en arreglos (flotar, hundir y construcción de Floyd); 2) heapq de Python solo soporta min-heap y no mantiene nodo.indice dentro de cada elemento."],
-        ["Escalabilidad de diseño", "Si se amplía a escalas microtonales, acordes extendidos o miles de candidatos, HeapMax mantiene extracción O(log G) y soporte directo para actualizar prioridades por índice."]
-      ]
-    },
-    {
-      cat: "defensa",
-      tag: "Pregunta de jurado #2",
-      pill: "Complejidad",
-      pillCls: "comp-pill--const",
-      title: "36. Si usan una cola de prioridad logarítmica, ¿por qué el Voraz es O(N) y no O(N log N)?",
-      ref: "Defensa matemática · ANALISIS_DE_COMPLEJIDAD.txt L21–24",
-      rows: [
-        ["Respuesta directa", "Porque el heap NO contiene las N notas de la canción: contiene únicamente los G = 7 grados candidatos de la escala en el pulso actual."],
-        ["Demostración en 1 línea", "T(N) = N · O(G + log G). Como G = 7 es una constante independiente de la duración en segundos, G + log₂(7) = O(1), y por tanto N · O(1) = O(N)."]
-      ]
-    },
-    {
-      cat: "defensa",
-      tag: "Pregunta de jurado #3",
-      pill: "Backtracking",
+      cat: "paranoia",
+      tag: "Forense #1 · L257–281",
+      pill: "Secreto del Voraz",
       pillCls: "comp-pill--exp",
-      title: "37. Si Backtracking es O(3^N), ¿cómo no explota al pedir 60 segundos (N = 140)?",
-      ref: "Defensa de poda · L434–491",
+      title: "59. ¿Cómo usa realmente algoritmo_voraz_para_aproximar a secuencia_base?",
+      ref: "for paso_idx, (simbolo, dur_ql) in enumerate(secuencia_base):",
+      snippet: "# Usa paso_idx, dur_ql y verifica si simbolo == 'rest';\n# prioridad = -(dist_objetivo + 0.5 * dist_anterior) depende de progresion y grado_actual",
       rows: [
-        ["Respuesta directa", "Por cuatro barreras combinadas: 1) Ordenamos primero el candidato de menor costo (7a cuesta 1), encontrando enseguida una hoja de costo bajo; 2) Podamos cualquier rama con costo_acum >= mejor_costo; 3) Los silencios por turno y rachas reducen la ramificación; 4) Ponemos un tope duro max_nodos = 4000 con respaldo determinista."],
-        ["Resultado práctico", "Pasa de 3^140 (~10^66) operaciones imposibles a un máximo garantizado de 4 000 nodos visitados por instrumento (< 0.05 s)."]
+        ["Qué ocurre exactamente en el código", "En los pulsos activos, la prioridad evalúa la distancia a progresion[paso_idx] y a grado_actual (que arranca en 0). Por eso secuencia_base actúa como esqueleto rítmico de N pulsos y duraciones dur_ql."],
+        ["Consecuencia audible directa", "En voraz.wav, guitarra y campana tocan al unísono la conducción óptima pura de La Folía o Quintas (y bajo + steel drums tocan su 3ª en pares), funcionando como referencia armónica ideal frente a backtracking.wav."],
+        ["Si el jurado pide acoplarlo al azar en 1 línea", "Basta sumar + 0.3 * dist_base en L272, donde dist_base mide la distancia circular entre idx_nota e indice_para_la_nota[simbolo]."]
       ]
     },
     {
-      cat: "defensa",
-      tag: "Pregunta de jurado #4",
-      pill: "Síntesis MIDI",
-      pillCls: "comp-pill--nlogn",
-      title: "38. ¿Por qué en el renderizado ordenan 'off' antes que 'on' en la misma muestra?",
-      ref: "Defensa de ingeniería de audio · L615–625",
+      cat: "paranoia",
+      tag: "Forense #2 · L88 vs L289",
+      pill: "% 6 vs % 7",
+      pillCls: "comp-pill--exp",
+      title: "60. Por qué el Browniano usa % 6 (0..5) mientras Voraz y DFS usan % 7 (0..6)",
+      ref: "L88: int(x * 100) % 6   vs   L262/L459: ... % num_grados (7)",
+      snippet: "aleatorio_bruto.wav → usa grados {0,1,2,3,4,5} (hexatónica, sin 7º grado sensible)\nvoraz.wav y backtracking.wav → usan los 7 grados {0,1,2,3,4,5,6}",
       rows: [
-        ["Respuesta directa", "Porque las notas son contiguas: el offset_s de la nota k coincide exactamente con el onset_s de la nota k+1. Si la nota se repite (ej. C3 seguida de C3) y ejecutáramos note_on antes que note_off en ese instante, el note_off mataría inmediatamente a la nueva nota dejando silencio."]
+        ["Efecto musical curioso", "En aleatorio_bruto.wav nunca suena el índice 6 (la sensible, ej. B3 en Do mayor, que es la nota más tensa), suavizando ligeramente el azar puro; en cambio La Folía [0,4,0,6,2,6,0,4] y los saltos +2/+4/+6 en Backtracking sí desbloquean el 7º grado completo."],
+        ["Si preguntan cómo incluir el 7º en bruto", "Cambiar % 6 por % 7 (o % len(escala_actual)) en L88–89, L104–105, L120–121 y L136–137."]
       ]
     },
     {
+      cat: "paranoia",
+      tag: "Forense #3 · L409 vs README L26",
+      pill: "max_septimas = 1",
+      pillCls: "comp-pill--exp",
+      title: "61. Diferencia entre README ('dos séptimas') y código real (max_septimas: int = 1)",
+      ref: "PROYECTO_FINAL_MUSICA_ESTOCASTICA.py L409 vs README.md L26",
+      snippet: "def reestricciones_de_la_siguiente_nota(..., max_terceras=2, max_quintas=2, max_septimas=1):",
+      rows: [
+        ["Por qué en el código vale 1 y es mejor así", "1) Acústicamente, dos séptimas seguidas crean disonancia áspera; 2) Algorítmicamente, como 7a (+6 mod 7) tiene el costo mínimo dist = 1, si permitiéramos 2 seguidas dominaría casi toda la pieza. Poner max_septimas = 1 obliga a alternar 7a con 3a y enriquece la melodía."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #4 · L77, 93, 109, 125",
+      pill: "Semilla en def",
+      pillCls: "comp-pill--const",
+      title: "62. Evaluación en tiempo de definición de inicio=random.uniform(-1.0, 1.0)",
+      ref: "def movimiento_browniano_bajo(n: int, inicio=random.uniform(-1.0, 1.0), paso: float = 1.0):",
+      rows: [
+        ["Regla sutil de Python", "En Python los valores por defecto de los argumentos se evalúan UNA sola vez cuando el intérprete ejecuta la sentencia def, no en cada llamada."],
+        ["Por qué en nuestro script NO causa colisión", "Porque existen 4 bloques def distintos (uno por instrumento) y cada uno se invoca exactamente 1 vez: Python evalúa 4 veces random.uniform(-1.0, 1.0), dando 4 puntos iniciales independientes."],
+        ["Cómo escribirlo si se unificara en 1 sola función", "Usar inicio: float | None = None y dentro del cuerpo if inicio is None: inicio = random.uniform(-1.0, 1.0)."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #5 · L50–51, L526",
+      pill: "Enarmonía music21",
+      pillCls: "comp-pill--const",
+      title: "63. Nombres internos con bemol ('E-3') de music21 y orden de alturas",
+      ref: "pitch.Pitch(midi=midi_fijado).nameWithOctave",
+      snippet: "Para C menor [0,2,3,5,7,8,10] → MIDI [48,50,51,53,55,56,58]\nmusic21 nombra MIDI 51 como 'E-3' (Mi bemol), 56 como 'A-3' y 58 como 'B-3'",
+      rows: [
+        ["¿Rompe esto la prohibición de bemoles en la entrada?", "¡No! La restricción de entrada (L18) solo aplica al string que escribe el usuario en consola; internamente todos los diccionarios (indice_para_la_nota y mapa_midi) se construyen leyendo las cadenas exactas generadas por escala_por_intervalos, por lo que hay consistencia 100%."],
+        ["Inversión de octava en tónicas distintas de C", "En G mayor, C3 (MIDI 48) suena más grave que G3 (MIDI 55) porque toda la escala vive en [48..59]: es lo que en teoría musical se llama disposición cerrada en una octava."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #6 · L70–72 vs L588–605",
+      pill: "IEEE 754 Float",
+      pillCls: "comp-pill--const",
+      title: "64. ¿Puede activarse eventos_fuera_de_rango por precisión IEEE 754?",
+      ref: "seg_por_ql_local = 60.0 / 140.0 · if onset_s >= duracion_s or offset_s > duracion_s:",
+      snippet: "En float64: 60.0 / 140.0 = 0.4285714285714285476...\nPara múltiplos exactos (ej. duracion=12 s, N=28): 28 * (60.0/140.0) = 12.0 exacto, pero acumulaciones de dur_ql pueden rozar 12.000000000000002",
+      rows: [
+        ["Por qué L588–605 es brillante", "En aritmética binaria IEEE 754, 3/7 no tiene representación finita en base 2. Al sumar cursor_ql y multiplicar por 60.0/140.0, offset_s podría exceder duracion_s por 10^-15 segundos; el clamp min(num_muestras, ...) evita un IndexError en NumPy."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #7 · meltysynth.py L3258",
+      pill: "Trampa Canal 9",
+      pillCls: "comp-pill--const",
+      title: "65. Por qué asignamos canales 0, 1, 2 y 3 (y evitamos el canal MIDI 9)",
+      ref: "Synthesizer._PERCUSSION_CHANNEL = 9 (canal 10 en numeración humana 1..16)",
+      snippet: "self._channels.append(_Channel(self, i == Synthesizer._PERCUSSION_CHANNEL))",
+      rows: [
+        ["Qué habría pasado si usábamos channel 9", "En el estándar General MIDI, el canal 9 (índice 0-based) está cableado al banco 128 de batería no afinada (C3=bombo/tom, F#3=hi-hat) e ignora escalas melódicas."],
+        ["Por qué channel 3 funciona para Steel Drums", "Steel Drums (program 114) es percusión melódica afinada: necesita un canal melódico normal (como el 3) para respetar exactamente las notas de escala_actual."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #8 · L449–453",
+      pill: "Memoria en silencios",
+      pillCls: "comp-pill--const",
+      title: "66. Cómo se comportan las rachas (r3, r5, r7) durante los silencios en DFS",
+      ref: "dfs(paso + 1, siguiente_nota3, siguiente_nota5, siguiente_nota7, costo_acum)",
+      rows: [
+        ["Comportamiento exacto", "Cuando a un instrumento le toca 'rest' por su turno modular, dfs pasa exactamente los mismos contadores (r3, r5, r7) al paso + 1 sin ponerlos en cero."],
+        ["Sentido musical", "El oído recuerda el último intervalo melódico que tocó ese instrumento aunque haya habido un pulso de silencio en medio; así evita que la guitarra o la campana repitan eternamente 7a cada vez que entran."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #9 · L598",
+      pill: "Guardia m_off > m_on",
+      pillCls: "comp-pill--const",
+      title: "67. Por qué L598 exige estrictamente m_off > m_on",
+      ref: "if m_off <= num_muestras and m_off > m_on: acciones_por_muestra[m_off].append(('off', ...))",
+      rows: [
+        ["Qué bug previene", "Si una nota tuviera dur_ql = 0 o quedara truncada al final tal que m_off == m_on, en ese mismo instante se ordenaría primero 'off' (que no apagaría nada) y luego 'on' ¡dejando la nota encendida para siempre sin futuro note_off!"]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #10 · Stack CPython",
+      pill: "141 << 1000 frames",
+      pillCls: "comp-pill--const",
+      title: "68. ¿Puede dfs() provocar RecursionError (Stack Overflow) en Python?",
+      ref: "sys.getrecursionlimit() == 1000 vs profundidad máxima n_pasos + 1",
+      rows: [
+        ["Prueba matemática de imposibilidad", "La validación L11 impone duracion <= 60, lo cual implica n_pasos = radio_de_notas <= 140. El árbol DFS tiene profundidad exacta n_pasos + 1 <= 141 llamadas anidadas, más de 7 veces por debajo del límite de 1 000 marcos de CPython."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #11 · L615–618",
+      pill: "Estabilidad Timsort",
+      pillCls: "comp-pill--const",
+      title: "69. Por qué importa que sorted() sea un algoritmo estable en L615",
+      ref: "acciones_ordenadas = sorted(acciones_por_muestra[t_actual], key=lambda x: 0 if x[0] == 'off' else 1)",
+      rows: [
+        ["Propiedad de estabilidad", "La función key solo devuelve dos valores posibles (0 o 1). Como Timsort es estable, todos los eventos 'off' conservan su orden original de canal (0 → 1 → 2 → 3) y todos los 'on' también, haciendo la asignación de voces en MeltySynth 100% determinista."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #12 · Entradas hostiles",
+      pill: "Pruebas de estrés",
+      pillCls: "comp-pill--const",
+      title: "70. Matriz completa de entradas límite y qué excepción lanza cada una",
+      ref: "Auditoría de robustez en consola (L10–30 y L645)",
+      snippet: "duracion='3' → OK (N=7) | duracion='60' → OK (N=140) | duracion='2' o '61' → ValueError propio\nduracion='10.5' o 'abc' → ValueError nativo de int() | nota='Bb' o 'c' → ValueError propio",
+      rows: [
+        ["Espacios accidentales ('C ')", "Como input() no aplica .strip(), escribir 'C ' con espacio al final no coincide con notas_validas y lanza el ValueError informativo de L23."],
+        ["Falta de FluidR3_GM.sf2", "Si no existe assets/FluidR3_GM.sf2, open() dentro de SoundFont.from_file lanza FileNotFoundError antes de sintetizar."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #13 · Desempates",
+      pill: "Heap vs DFS",
+      pillCls: "comp-pill--const",
+      title: "71. Cómo desempatan exactamente HeapMax vs Backtracking ante costos iguales",
+      ref: "L206 (prioridad >) vs L461 (-orden_de_elegir_el_grado)",
+      rows: [
+        ["En HeapMax (Voraz)", "Tanto flotar como hundir usan desigualdad estricta (>). Si dos grados tienen exactamente la misma prioridad (ej. D3 y B3 con -1.5 frente a C3), gana el que tenía menor índice inicial en candidatos (más cercano al grado 0)."],
+        ["En Backtracking", "Desempata explícitamente con -orden_de_elegir_el_grado: prefiere 7a (3) > 5a (2) > 3a (1), tal como especifica el README ('si la distancia es igual se irá al grado mayor')."]
+      ]
+    },
+    {
+      cat: "paranoia",
+      tag: "Forense #14 · Identificadores",
+      pill: "Nombres exactos",
+      pillCls: "comp-pill--const",
+      title: "72. Ortografía exacta de variables y funciones en el código fuente",
+      ref: "Para buscar con Ctrl+F en vivo sin fallar si el jurado pide abrir el .py",
+      snippet: "valors_aislados_bajo (sin 'e') | calcular_la_disancia_entre_dos_grado (sin 't')\nreestricciones_de_la_siguiente_nota (doble 'e') | dedtln ('duración estándar de todas las notas')",
+      rows: [
+        ["Por qué tenerlo presente", "Si el profesor pide buscar una función en el editor durante la defensa, escribir el identificador exacto del código fuente demuestra dominio total del archivo entregado."]
+      ]
+    },
+
+    // =====================================================
+    // 8. DEFENSA / PREGUNTAS DE JURADO Y EXAMEN (24 FICHAS)
+    // =====================================================
+    {
       cat: "defensa",
-      tag: "Pregunta de jurado #5",
-      pill: "Comparación musical",
+      tag: "Pregunta de jurado #1 · Estructuras",
+      pill: "Heap propio",
       pillCls: "comp-pill--linear",
-      title: "39. ¿Qué diferencia audible y algorítmica hay entre los 3 archivos .wav?",
+      title: "73. ¿Por qué programaron HeapMax desde cero en vez de usar heapq o max()?",
+      ref: "Defensa de estructuras · L161–238",
+      rows: [
+        ["Respuesta blindada", "Por tres razones técnicas y académicas: 1) En Algoritmos y Estructuras de Datos demuestra implementación real de montículos binarios en arreglos (construcción de Floyd O(G), flotar y hundir); 2) heapq de Python solo implementa min-heap; 3) Nuestra clase NodoHeap mantiene nodo.indice actualizado en cada swap, dejando lista la estructura para operaciones de cambio de prioridad en O(log G)."],
+        ["Remate corto", "Con G=7 max() también sería O(1), pero HeapMax escala logarítmicamente O(log G) si el espacio de acordes o microtonos crece a cientos de candidatos."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #2 · Trampa clásica",
+      pill: "O(N) vs O(N log N)",
+      pillCls: "comp-pill--const",
+      title: "74. Si usan un Heap logarítmico en cada nota, ¿por qué el Voraz es O(N) y no O(N log N)?",
+      ref: "Defensa asintótica · ANALISIS_DE_COMPLEJIDAD.txt L21–24",
+      rows: [
+        ["Respuesta blindada", "Porque el tamaño del heap NO es N (la cantidad de notas de la canción), sino G = 7 (los 7 grados de la escala diatónica). En cada uno de los N pulsos hacemos O(G + log G) = O(7 + log₂ 7) = O(1) trabajo constante. Multiplicado por N pulsos, N × O(1) = O(N) lineal."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #3 · Poda",
+      pill: "3^140 → ≤ 4000",
+      pillCls: "comp-pill--exp",
+      title: "75. Si Backtracking es O(3^N), ¿cómo no explota con 60 segundos (N = 140 notas)?",
+      ref: "Defensa de Branch & Bound · L431–492",
+      rows: [
+        ["Respuesta blindada", "Porque combinamos 4 mecanismos que aplastan la explosión combinatoria: 1) División modular de turnos (guitarra, campana y drums no ramifican en los silencios); 2) Restricciones de racha (cuando r3=2, r5=2 o r7=1 solo queda 1 rama válida, no 3); 3) Ordenamiento heurístico (.sort() explora primero 7a de costo 1, hallando enseguida una cota muy baja para podar con nuevo_costo >= mejor_costo); y 4) Un interruptor de tiempo real max_nodos = 4000 con respaldo determinista."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #4 ·Pregunta estrella",
+      pill: "DP vs Backtracking",
+      pillCls: "comp-pill--exp",
+      title: "76. ¿Se podría haber resuelto el problema de Backtracking con Programación Dinámica?",
+      ref: "Pregunta de nivel avanzado de Algoritmos",
+      rows: [
+        ["Respuesta blindada (de 100/100)", "¡Sí! Como el costo es aditivo y el futuro solo depende de la tupla de estado (paso, r3, r5, r7) donde r3 ∈ {0,1,2}, r5 ∈ {0,1,2} y r7 ∈ {0,1}, solo existen 3 × 3 × 2 = 18 estados posibles por paso (y de hecho a lo sumo 6 alcanzables porque solo una racha puede ser > 0 a la vez). Con DP/Viterbi costaría O(N) exacto."],
+        ["Por qué elegimos Backtracking con Poda", "Porque el objetivo formativo del proyecto era contrastar explícitamente los dos paradigmas de búsqueda vistos en clase —Voraz con Heaps vs. Backtracking en árbol con poda Branch & Bound— y observar cómo la heurística y la poda doman un árbol exponencial O(3^N)."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #5 · Optimalidad",
+      pill: "Voraz ≠ Óptimo global",
+      pillCls: "comp-pill--linear",
+      title: "77. ¿El Algoritmo Voraz garantiza siempre la secuencia de menor costo global?",
+      ref: "Propiedad de elección voraz · L269–281",
+      rows: [
+        ["Respuesta blindada", "Para la función local de un paso sí elige el máximo exacto, pero globalmente a lo largo de toda la canción una decisión voraz modifica grado_actual para el paso i+1. Si factor_paso fuera grande (>1.0), ahorrar distancia hoy podría dejarnos lejos del acorde de mañana; con nuestro factor_paso = 0.5 <= 1.0, por desigualdad triangular siempre elige exactamente el grado de la progresión armónica."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #6 · Exactitud DFS",
+      pill: "Exacto vs Anytime",
+      pillCls: "comp-pill--exp",
+      title: "78. ¿Cuándo garantiza Backtracking el óptimo global exacto y cuándo una aproximación?",
+      ref: "Bandera limite_alcanzado · L426, L438–440",
+      rows: [
+        ["Respuesta blindada", "Mientras al terminar se cumpla limite_alcanzado == False (es decir, el árbol podado completo requirió ≤ 4 000 nodos, como ocurre en duraciones cortas o en instrumentos con más silencios como steel drums y campana), la solución devuelta es matemáticamente el óptimo global exacto. Si se activa limite_alcanzado == True, actúa como un algoritmo anytime devolviendo la mejor solución incumbente hallada hasta el nodo 4 000."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #7 · Teoría de algoritmos",
+      pill: "B&B vs Backtracking",
+      pillCls: "comp-pill--exp",
+      title: "79. ¿Su algoritmo es Backtracking puro o Branch & Bound (Ramificación y Poda)?",
+      ref: "L403 (factibilidad) + L434/467 (optimalidad)",
+      rows: [
+        ["Respuesta blindada", "Combina ambos: usa Backtracking para satisfacer restricciones duras de factibilidad (reestricciones_de_la_siguiente_nota) deshaciendo estados con pop(), y añade una cota superior dinámica mejor_costo para podar subárboles subóptimos (nuevo_costo >= mejor_costo), lo cual es exactamente Branch & Bound con recorrido DFS."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #8 · Audio / MIDI",
+      pill: "Orden en colisión",
+      pillCls: "comp-pill--nlogn",
+      title: "80. ¿Por qué ordenan 'off' antes que 'on' cuando caen en la misma muestra?",
+      ref: "key=lambda x: 0 if x[0] == 'off' else 1 · L615–625",
+      rows: [
+        ["Respuesta blindada", "Porque nuestras notas son contiguas: el instante en que termina la nota k es exactamente el instante en que empieza la nota k+1. Si un canal repite la misma nota (ej. C3 seguida de C3) y enviáramos primero note_on(C3) y enseguida note_off(C3) en el mismo sample, MeltySynth apagaría ambas voces dejando un hueco de silencio."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #9 · Estocásticos",
+      pill: "Browniano vs Markov",
+      pillCls: "comp-pill--linear",
+      title: "81. ¿Por qué eligieron Movimiento Browniano en lugar de Cadenas de Markov o randint?",
+      ref: "Justificación del modelo generativo · L74–85",
+      rows: [
+        ["Respuesta blindada", "random.randint es ruido blanco uniforme sin relación entre una nota y la siguiente. Una Cadena de Markov requeriría definir a mano una matriz de transición 7×7 (que ya impondría reglas armónicas artificiales en la señal base). El Movimiento Browniano nos da continuidad física natural sin reglas tonales previas, ideal como línea base justa para medir qué tanto aportan luego Voraz y Backtracking."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #10 · Heurística DFS",
+      pill: "Impacto de .sort()",
+      pillCls: "comp-pill--exp",
+      title: "82. ¿Qué pasaría si borráramos la línea candidatos_ordenados.sort() (L463) en Backtracking?",
+      ref: "Importancia del orden de exploración en Branch & Bound",
+      rows: [
+        ["Respuesta blindada", "Sin .sort(), el bucle recorrería ['3a', '5a', '7a'] en ese orden fijo: bajaría primero por puras 3as y 5as (costos 2 y 3), estableciendo una primera cota mejor_costo muy alta (mala). Eso debilitaría enormemente la poda if nuevo_costo >= mejor_costo y agotaría los 4 000 nodos mucho antes. Ordenar primero el menor costo (7a cuesta 1) tensa la cota desde la primera hoja."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #11 · Hiperparámetros",
+      pill: "factor_paso",
+      pillCls: "comp-pill--linear",
+      title: "83. ¿Qué pasa si cambiamos factor_paso = 0.5 a 0.0 o a 10.0 en el Voraz?",
+      ref: "prioridad = -(dist_objetivo + factor_paso * dist_anterior) · L251, L272",
+      rows: [
+        ["Respuesta blindada", "Con factor_paso = 0.0 ignora por completo de qué nota veníamos (cero costo por saltos bruscos). Con factor_paso = 10.0 penaliza tanto moverse que dist_anterior = 0 domina siempre y el instrumento se queda congelado repitiendo la tónica inicial toda la canción. 0.5 pondera 2:1 la armonía sobre la cercanía melódica."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #12 · Estructuras dispersas",
+      pill: "Hash vs Arreglo S",
+      pillCls: "comp-pill--nlogn",
+      title: "84. ¿Por qué acciones_por_muestra es un defaultdict y no una lista de longitud S?",
+      ref: "Estructura dispersa (sparse) vs densa · L582, L609",
+      rows: [
+        ["Respuesta blindada", "Porque para 60 segundos hay S = 2 646 000 muestras, pero solo cambian notas cada 0.428 s (~141 muestras activas: el 99.995% de las muestras no tienen eventos MIDI). Un defaultdict guarda únicamente las ~141 muestras con eventos y nos permite saltar en render() de evento en evento en tramos de ~18 900 muestras de golpe."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #13 · Variables de costo",
+      pill: "Por qué aparece S",
+      pillCls: "comp-pill--nlogn",
+      title: "85. ¿Por qué escriben O(N log N + S) con dos variables si tanto N como S dependen de duracion?",
+      ref: "Análisis multivariable de algoritmos · L68–72, L575",
+      rows: [
+        ["Respuesta blindada", "Porque representan dos dominios físicos distintos con constantes enormes de diferencia: N = ⌊duracion · bpm / 60⌋ es la cantidad de eventos simbólicos (~2.33 por segundo), mientras S = duracion · sample_rate es la cantidad de muestras acústicas (44 100 por segundo). Si expresamos todo en función únicamente de duracion D con BPM y Fs fijos, ambos son Θ(D log D + D) = Θ(D log D) asintótico, pero en la práctica S es ~18 900 veces mayor que N."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #14 · Lenguaje Python",
+      pill: "Alcance nonlocal",
+      pillCls: "comp-pill--const",
+      title: "86. ¿Qué hace exactamente nonlocal en dfs() (L429) y por qué no usaron global?",
+      ref: "nonlocal mejor_costo, mejor_secuencia, nodos_visitados, limite_alcanzado",
+      rows: [
+        ["Respuesta blindada", "nonlocal enlaza las variables al ámbito de la función envolvente poda_de_backtracking, no al módulo global. Gracias a eso, cada una de las 4 llamadas (bajo, guitarra, campana, steel drums) arranca con su propio mejor_costo = inf y nodos_visitados = 0 limpios y encapsulados, sin contaminar el estado de los otros instrumentos."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #15 · Concurrencia",
+      pill: "GIL vs Multiprocessing",
+      pillCls: "comp-pill--nlogn",
+      title: "87. ¿Se podrían generar los 3 archivos .wav en paralelo para tardar un tercio del tiempo?",
+      ref: "Arquitectura de ejecución · L645–678",
+      rows: [
+        ["Respuesta blindada", "Con hilos (threading) NO ganaría velocidad porque meltysynth.py es código CPU-bound en Python puro y el Global Interpreter Lock (GIL) de CPython serializa los bytecodes. En cambio, con multiprocessing.Pool(3) (3 procesos independientes de sistema operativo) SÍ lograríamos casi 3× de aceleración en un procesador multinúcleo, porque las 3 síntesis son completamente independientes entre sí."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #16 · Comparación audible",
+      pill: "Los 3 audios",
+      pillCls: "comp-pill--linear",
+      title: "88. Si escuchamos los 3 .wav a ciegas, ¿cómo distinguimos cuál generó cada algoritmo?",
       ref: "aleatorio_bruto.wav vs voraz.wav vs backtracking.wav",
       rows: [
-        ["aleatorio_bruto.wav", "4 canales tocando todo el tiempo sin silencios ni relación armónica entre sí (caminatas brownianas puras en grados 0..5)."],
-        ["voraz.wav", "Sigue fielmente la progresión clásica (La Folía o Quintas) en guitarra y campana, con bajo y percusión respondiendo en terceras cada 2 tiempos."],
-        ["backtracking.wav", "Transforma la secuencia aleatoria original de cada canal en saltos controlados de 3ª, 5ª y 7ª sin repetir rachas monótonas y escalonando la entrada de los 4 instrumentos (mod 1..4)."]
+        ["aleatorio_bruto.wav", "Suena denso y caótico: los 4 instrumentos tocan sin parar en todos los pulsos sin silencios ni centro tonal compartido."],
+        ["voraz.wav", "Suena ordenado, solemne y predecible: sigue claramente la cadencia clásica de La Folía o Quintas con respuesta rítmica par/impar del bajo y percusión."],
+        ["backtracking.wav", "Suena polifónico, aireado y variado: los instrumentos entran escalonados (mod 1, 2, 3, 4), conservan la huella estocástica inicial de cada pista pero transformada en intervalos limpios sin repeticiones monótonas."]
       ]
     },
     {
       cat: "defensa",
-      tag: "Pregunta de jurado #6",
-      pill: "Evolución del proyecto",
+      tag: "Pregunta de jurado #17 · Índices del Heap",
+      pill: "Aritmética 0-based",
       pillCls: "comp-pill--const",
-      title: "40. ¿Cómo evolucionó desde la propuesta inicial hasta este sistema completo?",
-      ref: "propuesta/propuesta.pdf → PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
+      title: "89. ¿Cómo demuestran rápido en el pizarrón las fórmulas padre=(i-1)//2 e hijos 2i+1, 2i+2?",
+      ref: "L161–168 de PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
       rows: [
-        ["Respuesta directa", "La propuesta partía del interés didáctico en construir escalas musicales por semitonos. Al desarrollarlo decidimos llevar esas escalas mucho más lejos: no solo mostrarlas en texto, sino sintetizar música polifónica real y comparar experimentalmente el azar frente a dos paradigmas centrales del curso (Voraz con Heaps y Backtracking con Poda)."]
+        ["Respuesta blindada", "En un árbol binario lleno indexado desde 1, los hijos de k son 2k y 2k+1, y el padre es k//2. Al desplazar todos los índices 1 posición a la izquierda para empezar en 0 (i = k - 1 → k = i + 1), los hijos pasan a ser 2(i+1) - 1 = 2i + 1 y 2(i+1) = 2i + 2, e invirtiendo cualquiera de las dos con división entera obtenemos exactamente (i - 1) // 2."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #18 · Audio digital",
+      pill: "Mezcla sin distorsión",
+      pillCls: "comp-pill--const",
+      title: "90. ¿Por qué no satura horriblemente el audio cuando suenan los 4 instrumentos al mismo tiempo?",
+      ref: "Control de ganancia en 3 etapas · L150, meltysynth L3269, L637",
+      rows: [
+        ["Respuesta blindada", "Por tres márgenes de seguridad (headroom): 1) Usamos velocity = 70 (moderado sobre 127); 2) MeltySynth aplica internamente _master_volume = 0.5 al mezclar las voces en float; 3) Al convertir a entero de 16 bits aplicamos np.clip(..., -32768, 32767) para impedir cualquier desbordamiento aritmético."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #19 · Diseño musical",
+      pill: "Octava 3 fija",
+      pillCls: "comp-pill--const",
+      title: "91. ¿Por qué todas las notas viven en la octava 3 (C3..B3) para los 4 instrumentos?",
+      ref: "construir_repositorio_escalas(octava=3) · L63",
+      rows: [
+        ["Respuesta blindada", "Porque modelamos clases de altura (pitch classes) sobre un anillo circular Z_7 sin saltos de octava que distorsionen las distancias entre grados; aun recibiendo la misma octava MIDI 3, el banco SoundFont FluidR3 aplica el timbre, formantes y envolvente real de bajo fretless, guitarra jazz, campana tubular y steel drums."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #20 · Testing",
+      pill: "Semillas y pruebas",
+      pillCls: "comp-pill--const",
+      title: "92. Si el proyecto es estocástico (aleatorio), ¿cómo se prueba que los algoritmos funcionan bien?",
+      ref: "Estrategia de verificación determinista sobre entradas estocásticas",
+      rows: [
+        ["Respuesta blindada", "Separando generación de optimización: tanto algoritmo_voraz_para_aproximar como poda_de_backtracking son 100% deterministas una vez dada secuencia_base. Pasándoles una lista fija pequeña (como [E3, D3, A3] en nuestra traza) o fijando random.seed(k) antes de ejecutar, la salida y el costo óptimo son completamente reproducibles y verificables a mano."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #21 · Caso extremo",
+      pill: "10 minutos de audio",
+      pillCls: "comp-pill--exp",
+      title: "93. ¿Qué se rompería primero si quitáramos el límite de 60 s y pidiéramos 10 minutos (600 s)?",
+      ref: "Análisis de límites de arquitectura · L11, L428, L575",
+      rows: [
+        ["Respuesta blindada", "Con 600 s tendríamos N = 1 400 notas/canal y S = 26 460 000 muestras: 1) El primero en fallar sería dfs() en el canal del bajo al llegar al paso ~998 por el límite por defecto sys.getrecursionlimit() = 1000 de Python (solución: subir el límite o pasar DFS a pila iterativa); 2) Los buffers NumPy ocuparían ~530 MB de RAM pico (aún manejable); 3) El renderizado en Python puro tardaría un par de minutos."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #22 · Caché vs Recálculo",
+      pill: "Precomputación",
+      pillCls: "comp-pill--const",
+      title: "94. ¿Por qué precalcularon las 24 escalas en repositorio_escalas si el usuario solo pide una?",
+      ref: "construir_repositorio_escalas() · L55–64, L526–530",
+      rows: [
+        ["Respuesta blindada", "Dos ventajas: 1) Cuesta apenas 168 iteraciones fijas (milisegundos, Θ(1)) y deja lista una arquitectura tipo servidor/API donde se puedan generar múltiples canciones en cualquier tonalidad sin recalcular; 2) Alimenta directamente mapa_midi (L526) cubriendo los 12 semitonos cromáticos de una sola vez."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #23 · Evolución",
+      pill: "Futuro v2.0",
+      pillCls: "comp-pill--linear",
+      title: "95. Si continuaran el proyecto hacia una versión 2.0, ¿qué mejoras puntuales aplicarían?",
+      ref: "Autocrítica constructiva de ingeniería",
+      rows: [
+        ["4 mejoras concretas", "1) Unificar las 4 funciones brownianas en una sola con inicio=None evaluado en tiempo de llamada y módulo % 7 completo; 2) Agregar un término de fidelidad a la nota browniana (+ α·dist_base) dentro de la prioridad del Voraz; 3) Envolver input() y la carga .sf2 en bloques try/except amigables; 4) Paralelizar los 3 renders WAV con multiprocessing o añadir una opción DP O(N) junto al Backtracking."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #24 · Ética y autoría",
+      pill: "Uso de IA y Propuesta",
+      pillCls: "comp-pill--const",
+      title: "96. ¿Cómo integraron las herramientas de investigación/IA y cómo evolucionó desde la propuesta?",
+      ref: "README.md L30–36 + propuesta/propuesta.pdf",
+      rows: [
+        ["Respuesta transparente", "Tal como documentamos en la Declaración de IA del README: usamos IA como apoyo para descubrir que meltysynth permitía sintetizar SoundFonts en Python puro sin dependencias C++, consultar su interfaz de renderizado por buffers, estructurar la función envoltorio para no triplicar código y revisar casos límite; mientras que music21, la elección de La Folía/Quintas, la estructura HeapMax y las reglas de Backtracking nacieron de expandir nuestra propuesta inicial de escalas hacia un comparador algorítmico audible completo."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #25 · Contexto histórico",
+      pill: "Iannis Xenakis",
+      pillCls: "comp-pill--const",
+      title: "97. ¿Quién fue Iannis Xenakis, qué es Metastaseis y cómo inspira nuestro código?",
+      ref: "Contexto musical · Años 1950 (Metastaseis, 1953–1954) → L66–138",
+      rows: [
+        ["Origen de la música estocástica", "Iannis Xenakis (compositor, ingeniero y arquitecto) introdujo en los años 50 la música estocástica usando leyes estadísticas de gases (Maxwell-Boltzmann), movimiento browniano y probabilidad para modelar masas sonoras en vez de elegir cada nota manualmente."],
+        ["Por qué surgió Metastaseis", "Nació como reacción frente al serialismo integral, que Xenakis consideraba excesivamente determinista y restrictivo en su control lineal pero caótico al oído."],
+        ["Puente directo con nuestro proyecto", "En nuestro código (L74–138), random.gauss(0.0, paso) modela ese mismo movimiento browniano de partículas como materia prima, y luego comparamos dos formas computacionales de darle orden armónico."]
+      ]
+    },
+    {
+      cat: "defensa",
+      tag: "Pregunta de jurado #26 · Teoría → Código",
+      pill: "5 Conceptos Musicales",
+      pillCls: "comp-pill--linear",
+      title: "98. ¿Cómo se traduce cada uno de los 5 términos musicales a estructuras de datos en Python?",
+      ref: "Escala · Modo · Grado · Intervalo · Progresión en PROYECTO_FINAL_MUSICA_ESTOCASTICA.py",
+      rows: [
+        ["Escala y Modo", "Modo ('mayor' alegra / 'menor' entristece) es la clave del diccionario INTERVALOS (L37) que define la distribución de semitonos; Escala es la lista ordenada list[str] de 7 notas resultante en escala_actual (L64)."],
+        ["Grado (1º al 7º)", "Se representa como el índice entero 0..6 dentro de escala_actual (traducido en O(1) con indice_para_la_nota_dentro_de_la_escala, L245)."],
+        ["Intervalos y Progresiones", "Intervalo es el salto modular desplazamientos = {'3a': 2, '5a': 4, '7a': 6} (L361: estar a +2 notas en la escala es una 3ª); Progresión es la lista generalizada de grados progresion_folia o progresion_quintas (L240–241)."]
       ]
     }
   ];
@@ -1577,6 +2285,58 @@
       "</div>";
   }
 
+  let quizPool = [];
+  let quizPos = 0;
+
+  function shuffleIndices(len) {
+    const arr = [];
+    for (let i = 0; i < len; i++) arr.push(i);
+    for (let i = len - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function getParanoiaQuizItems() {
+    return HARDCORE_ITEMS.filter(function (it) {
+      return it.cat === "defensa" || it.cat === "paranoia";
+    });
+  }
+
+  function renderQuizCard() {
+    const poolItems = getParanoiaQuizItems();
+    if (!poolItems.length || !quizQuestionEl) return;
+    if (quizPool.length !== poolItems.length) {
+      quizPool = shuffleIndices(poolItems.length);
+      quizPos = 0;
+    }
+    const item = poolItems[quizPool[quizPos]];
+    if (quizCounterEl) {
+      quizCounterEl.textContent = "Pregunta " + (quizPos + 1) + " / " + poolItems.length;
+    }
+    if (quizTagEl) {
+      quizTagEl.textContent = item.tag + " · " + item.pill;
+    }
+    quizQuestionEl.textContent = item.title;
+    if (quizRefEl) {
+      quizRefEl.textContent = item.ref;
+    }
+    if (quizAnswerEl) {
+      const snip = item.snippet ? '<pre class="hc-snippet">' + escapeHtml(item.snippet) + "</pre>" : "";
+      const dl = item.rows.map(function (r) {
+        return "<dt>" + escapeHtml(r[0]) + "</dt><dd>" + escapeHtml(r[1]) + "</dd>";
+      }).join("");
+      quizAnswerEl.innerHTML = snip + '<dl class="hc-dl">' + dl + "</dl>";
+      quizAnswerEl.hidden = true;
+    }
+    if (btnQuizReveal) {
+      btnQuizReveal.textContent = "👁 Mostrar respuesta blindada";
+    }
+  }
+
   function buildHardcoreLibrary() {
     if (!hcGrid) return;
     hcGrid.innerHTML = HARDCORE_ITEMS.map(function (item) {
@@ -1590,9 +2350,12 @@
         item.title + " " + item.tag + " " + item.pill + " " + item.ref + " " +
         (item.snippet || "") + " " + item.rows.map(function (r) { return r[0] + " " + r[1]; }).join(" ")
       ).toLowerCase();
+      const extraCls = item.cat === "paranoia"
+        ? " hc-card--paranoia"
+        : (item.cat === "defensa" ? " hc-card--defensa" : "");
 
       return (
-        '<article class="hc-card" data-hc-cat="' + item.cat + '" data-hc-search="' + escapeHtml(searchBlob) + '">' +
+        '<article class="hc-card' + extraCls + '" data-hc-cat="' + item.cat + '" data-hc-search="' + escapeHtml(searchBlob) + '">' +
           '<div class="hc-card__head">' +
             '<span class="hc-cat">' + escapeHtml(item.tag) + "</span>" +
             '<span class="comp-pill ' + item.pillCls + '">' + escapeHtml(item.pill) + "</span>" +
@@ -1604,6 +2367,25 @@
         "</article>"
       );
     }).join("");
+
+    // Mostrar conteo real en cada pestaña de categoría
+    hcTabs.forEach(function (tab) {
+      const cat = tab.dataset.hcTab;
+      if (tab.dataset.baseLabel === undefined) {
+        tab.dataset.baseLabel = tab.textContent.trim();
+      }
+      let count = 0;
+      if (cat === "all") {
+        count = HARDCORE_ITEMS.length + 3;
+      } else if (cat === "simulador") {
+        count = 2;
+      } else {
+        count = HARDCORE_ITEMS.filter(function (it) { return it.cat === cat; }).length;
+      }
+      tab.innerHTML = escapeHtml(tab.dataset.baseLabel) + '<span class="hc-tab__count">' + count + "</span>";
+    });
+
+    renderQuizCard();
   }
 
   function applyHardcoreFilters() {
@@ -1620,10 +2402,19 @@
     });
 
     const showSimBlocks = (currentHcTab === "all" || currentHcTab === "simulador") && !q;
+    const showQuizBlock = (currentHcTab === "all" || currentHcTab === "defensa" || currentHcTab === "paranoia") && !q;
     if (hcSimPanel) hcSimPanel.hidden = !showSimBlocks;
     if (hcArchPanel) hcArchPanel.hidden = !showSimBlocks;
+    if (hcQuizPanel) hcQuizPanel.hidden = !showQuizBlock;
 
-    const totalVisible = visibleCards + (showSimBlocks ? 2 : 0);
+    if (hcQuickChips) {
+      hcQuickChips.querySelectorAll("[data-hc-quick]").forEach(function (chip) {
+        chip.classList.toggle("is-active", q !== "" && chip.dataset.hcQuick.toLowerCase() === q);
+      });
+    }
+
+    const extraBlocks = (showSimBlocks ? 2 : 0) + (showQuizBlock ? 1 : 0);
+    const totalVisible = visibleCards + extraBlocks;
     if (hcCountBadge) {
       hcCountBadge.textContent = totalVisible + (totalVisible === 1 ? " bloque visible" : " bloques visibles");
     }
@@ -1659,6 +2450,66 @@
     hcSearch.addEventListener("input", function () {
       currentHcQuery = hcSearch.value;
       applyHardcoreFilters();
+    });
+  }
+
+  if (hcQuickChips) {
+    hcQuickChips.addEventListener("click", function (ev) {
+      const chip = ev.target.closest("[data-hc-quick]");
+      if (!chip) return;
+      const term = chip.dataset.hcQuick;
+      if (currentHcQuery.toLowerCase() === term.toLowerCase()) {
+        currentHcQuery = "";
+        if (hcSearch) hcSearch.value = "";
+      } else {
+        currentHcQuery = term;
+        if (hcSearch) hcSearch.value = term;
+        if (currentHcTab === "simulador") {
+          currentHcTab = "all";
+          hcTabs.forEach(function (t) {
+            const active = t.dataset.hcTab === "all";
+            t.classList.toggle("is-active", active);
+            t.setAttribute("aria-selected", active ? "true" : "false");
+          });
+        }
+      }
+      applyHardcoreFilters();
+    });
+  }
+
+  if (btnHcClear) {
+    btnHcClear.addEventListener("click", function () {
+      currentHcQuery = "";
+      if (hcSearch) hcSearch.value = "";
+      applyHardcoreFilters();
+    });
+  }
+
+  if (btnQuizRandom) {
+    btnQuizRandom.addEventListener("click", function () {
+      const poolItems = getParanoiaQuizItems();
+      if (!poolItems.length) return;
+      quizPool = shuffleIndices(poolItems.length);
+      quizPos = 0;
+      renderQuizCard();
+    });
+  }
+
+  if (btnQuizNext) {
+    btnQuizNext.addEventListener("click", function () {
+      const poolItems = getParanoiaQuizItems();
+      if (!poolItems.length) return;
+      quizPos = (quizPos + 1) % poolItems.length;
+      renderQuizCard();
+    });
+  }
+
+  if (btnQuizReveal) {
+    btnQuizReveal.addEventListener("click", function () {
+      if (!quizAnswerEl) return;
+      const willShow = quizAnswerEl.hidden;
+      quizAnswerEl.hidden = !willShow;
+      btnQuizReveal.textContent = willShow ? "🙈 Ocultar respuesta" : "👁 Mostrar respuesta blindada";
     });
   }
 
