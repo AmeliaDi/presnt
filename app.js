@@ -655,7 +655,7 @@
       .replace(/>/g, "&gt;");
   }
 
-  function highlightCode(containerId, badgeId, activeLine) {
+  function highlightCode(containerId, badgeId, activeLine, fillId, step, maxSteps) {
     const lines = document.querySelectorAll("#" + containerId + " .code-line");
     lines.forEach(function (el) {
       el.classList.toggle("is-active", Number(el.dataset.line) === activeLine);
@@ -663,6 +663,12 @@
     const badge = document.getElementById(badgeId);
     if (badge) {
       badge.textContent = "Línea " + String(activeLine).padStart(2, "0");
+    }
+    if (fillId && maxSteps > 0) {
+      const fillEl = document.getElementById(fillId);
+      if (fillEl) {
+        fillEl.style.width = Math.round((step / maxSteps) * 100) + "%";
+      }
     }
   }
 
@@ -687,6 +693,8 @@
   // =========================================================
   // REPRODUCTOR DE DEMOS WAV EN VIVO (../proyecto_final/*.wav)
   // =========================================================
+  const closingEqEl = document.getElementById("closing-eq");
+
   function stopWavAudio() {
     if (activeAudio) {
       activeAudio.pause();
@@ -698,6 +706,9 @@
       activeAudioBtn.textContent = "▶ " + baseName;
       activeAudioBtn.classList.remove("is-playing");
       activeAudioBtn = null;
+    }
+    if (closingEqEl) {
+      closingEqEl.classList.remove("is-playing");
     }
   }
 
@@ -715,6 +726,9 @@
     activeAudioBtn = btn;
     btn.classList.add("is-playing");
     btn.textContent = "⏹ " + baseName;
+    if (closingEqEl) {
+      closingEqEl.classList.add("is-playing");
+    }
     if (audioStatusEl) {
       audioStatusEl.hidden = false;
       audioStatusEl.textContent = "Reproduciendo " + baseName + "...";
@@ -956,7 +970,7 @@
     document.getElementById("b-step-badge").textContent = "Paso " + step + " / 4";
     document.getElementById("b-formula").textContent = data.formula;
     document.getElementById("b-note").textContent = data.note;
-    highlightCode("b-code", "b-line-badge", data.line);
+    highlightCode("b-code", "b-line-badge", data.line, "b-ide-fill", step, 4);
     renderVars("b-vars", data.vars);
     renderExplain("b-explain", data.explain);
 
@@ -978,6 +992,11 @@
         const x2 = xs[i], y2 = mapY(pCur.val);
         const isLastSeg = i === data.visibleCount - 1;
         html += '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#1D3557" stroke-width="3.5"' + (isLastSeg ? ' class="svg-draw"' : "") + " />";
+        if (isLastSeg) {
+          html += '<circle class="svg-motion-orb" r="5.5" fill="#F6B352" stroke="#C85A32" stroke-width="2">' +
+            '<animateMotion path="M ' + x1 + " " + y1 + " L " + x2 + " " + y2 + '" dur="1.15s" repeatCount="indefinite" />' +
+            "</circle>";
+        }
         html += '<g' + (isLastSeg ? ' class="svg-pop"' : "") + ">";
         html += '<rect x="' + ((x1 + x2) / 2 - 26) + '" y="' + ((y1 + y2) / 2 - 12) + '" width="52" height="20" rx="6" fill="#E9EFF7" />';
         html += '<text x="' + ((x1 + x2) / 2) + '" y="' + ((y1 + y2) / 2 + 3) + '" text-anchor="middle" fill="#1D3557" font-size="12" font-weight="800">' + pCur.jump + "</text>";
@@ -997,6 +1016,9 @@
         if (data.visibleCount > 0) {
           const hitX = 74 + p.deg * 74 + 33;
           html += '<path d="M ' + cx + " " + (cy + 10) + " L " + hitX + ' 162" stroke="#C85A32" stroke-width="1.8" stroke-dasharray="4 4" class="svg-dash-flow" />';
+          html += '<circle class="svg-motion-orb" r="4.2" fill="#C85A32">' +
+            '<animateMotion path="M ' + cx + " " + (cy + 10) + " L " + hitX + ' 162" dur="0.95s" repeatCount="indefinite" />' +
+            "</circle>";
           html += '<rect x="' + ((cx + hitX) / 2 - 36) + '" y="141" width="72" height="17" rx="5" fill="#FCECE5" />';
           html += '<text x="' + ((cx + hitX) / 2) + '" y="153" text-anchor="middle" fill="#C85A32" font-size="11" font-weight="800">×100 → %6</text>';
         }
@@ -1015,6 +1037,9 @@
       const bg = isHit ? "#C85A32" : (isUnused ? "#F1F5F9" : "#FFFFFF");
       const bd = isHit ? "#C85A32" : (isUnused ? "#CBD5E1" : "#1D3557");
       const tc = isHit ? "#FFFFFF" : (isUnused ? "#94A3B8" : "#1D3557");
+      if (isHit) {
+        html += '<rect x="' + (bx - 3) + '" y="161" width="72" height="48" rx="11" fill="none" stroke="rgba(200,90,50,0.42)" stroke-width="3" class="svg-pulse" />';
+      }
       html += '<g' + (isHit ? ' class="svg-pop"' : "") + ">";
       html += '<rect x="' + bx + '" y="164" width="66" height="42" rx="9" fill="' + bg + '" stroke="' + bd + '" stroke-width="2" />';
       html += '<text x="' + (bx + 33) + '" y="180" text-anchor="middle" fill="' + tc + '" font-size="11.5" font-weight="700">[' + d + "]</text>";
@@ -1141,7 +1166,7 @@
     document.getElementById("g-step-badge").textContent = "Paso " + step + " / 4";
     document.getElementById("g-formula").textContent = data.formula;
     document.getElementById("g-note").textContent = data.note;
-    highlightCode("g-code", "g-line-badge", data.line);
+    highlightCode("g-code", "g-line-badge", data.line, "g-ide-fill", step, 4);
     renderVars("g-vars", data.vars);
     renderExplain("g-explain", data.explain);
 
@@ -1181,6 +1206,15 @@
       const a = pos[e[0]], b = pos[e[1]];
       html += '<line x1="' + a.x + '" y1="' + a.y + '" x2="' + b.x + '" y2="' + b.y + '" stroke="' + (isInit ? "#CBD5E1" : "#1D3557") + '" stroke-width="2.5"' + (!isInit ? ' class="svg-draw"' : "") + " />";
     });
+
+    if (!isInit) {
+      html += '<circle class="svg-motion-orb" r="4.5" fill="#F6B352">' +
+        '<animateMotion path="M 165 136 L 310 74" dur="1.25s" repeatCount="indefinite" />' +
+        "</circle>";
+      html += '<circle class="svg-motion-orb" r="4.5" fill="#F6B352">' +
+        '<animateMotion path="M 455 136 L 310 74" dur="1.25s" begin="0.45s" repeatCount="indefinite" />' +
+        "</circle>";
+    }
 
     pos.forEach(function (p, i) {
       const item = h[i];
@@ -1315,7 +1349,7 @@
     document.getElementById("bt-step-badge").textContent = "Paso " + step + " / 5";
     document.getElementById("bt-best").textContent = data.best;
     document.getElementById("bt-note").textContent = data.note;
-    highlightCode("bt-code", "bt-line-badge", data.line);
+    highlightCode("bt-code", "bt-line-badge", data.line, "bt-ide-fill", step, 5);
     renderVars("bt-vars", data.vars);
     renderExplain("bt-explain", data.explain);
 
@@ -1349,6 +1383,19 @@
 
     if (st === "prune2" || st === "done") {
       html += '<path d="M 150 186 Q 178 172, 178 158" fill="none" stroke="#C85A32" stroke-width="2.5" stroke-dasharray="4 4" class="svg-dash-flow" />';
+    }
+
+    // Orbe explorador DFS en vivo según el paso actual
+    let orbPath = "";
+    if (st === "n1") orbPath = "M 275 30 L 165 94";
+    else if (st === "n2") orbPath = "M 165 94 L 165 152";
+    else if (st === "leaf") orbPath = "M 165 152 L 138 200";
+    else if (st === "prune2") orbPath = "M 138 200 L 165 152 L 290 200";
+    else if (st === "done") orbPath = "M 165 94 L 275 30 L 385 94";
+    if (orbPath) {
+      html += '<circle class="svg-motion-orb" r="5.5" fill="#F6B352" stroke="#1D3557" stroke-width="2">' +
+        '<animateMotion path="' + orbPath + '" dur="1.3s" repeatCount="indefinite" />' +
+        "</circle>";
     }
 
     html += '<rect x="235" y="12" width="80" height="32" rx="11" fill="#1D3557" />';
@@ -1490,6 +1537,9 @@
     const mbWav = (bytesWav / (1024 * 1024)).toFixed(2);
     const mbTotal3 = ((bytesWav * 3) / (1024 * 1024)).toFixed(2);
 
+    const pctDur = Math.min(100, Math.round((dur / 60) * 100));
+    const pctClamp = Math.min(100, Math.round((Math.min(4000, Math.pow(3, Math.min(N, 8))) / 4000) * 100));
+
     simResults.innerHTML =
       '<div class="sim-kpi sim-kpi--ok">' +
         '<span class="sim-kpi__label">escala_actual (octava 3)</span>' +
@@ -1505,21 +1555,25 @@
         '<span class="sim-kpi__label">Pulsos N (140 BPM)</span>' +
         '<span class="sim-kpi__val">N = ' + N + " notas / canal</span>" +
         '<span class="sim-kpi__sub">Total en los 4 canales: ' + (4 * N) + " eventos base</span>" +
+        '<div class="sim-meter"><div class="sim-meter__fill" style="width:' + pctDur + '%"></div></div>' +
       "</div>" +
       '<div class="sim-kpi sim-kpi--ok">' +
         '<span class="sim-kpi__label">Costo Lineal O(N)</span>' +
         '<span class="sim-kpi__val">Browniano: ' + opsBrown.toLocaleString("es-MX") + " ops</span>" +
         '<span class="sim-kpi__sub">Voraz + HeapMax (G=7): ~' + opsVoraz.toLocaleString("es-MX") + " ops</span>" +
+        '<div class="sim-meter"><div class="sim-meter__fill" style="width:' + pctDur + '%"></div></div>' +
       "</div>" +
       '<div class="sim-kpi sim-kpi--accent">' +
         '<span class="sim-kpi__label">Backtracking: 3^N vs Tope</span>' +
         '<span class="sim-kpi__val">3^' + N + " = " + formatPow3(N) + "</span>" +
         '<span class="sim-kpi__sub">Con max_nodos = 4 000: ≤ 16 000 nodos (4 canales)</span>' +
+        '<div class="sim-meter"><div class="sim-meter__fill" style="width:' + pctClamp + '%"></div></div>' +
       "</div>" +
       '<div class="sim-kpi">' +
         '<span class="sim-kpi__label">Síntesis WAV (44 100 Hz)</span>' +
         '<span class="sim-kpi__val">S = ' + samplesS.toLocaleString("es-MX") + " muestras</span>" +
         '<span class="sim-kpi__sub">' + mbWav + " MB por archivo (" + mbTotal3 + " MB los 3 WAV)</span>" +
+        '<div class="sim-meter"><div class="sim-meter__fill" style="width:' + pctDur + '%"></div></div>' +
       "</div>";
   }
 
@@ -1624,7 +1678,9 @@
     }
     let html = "";
     for (let i = 1; i <= max; i++) {
-      html += '<span class="step-dot' + (i <= currentStep ? " is-done" : "") + '"></span>';
+      const doneCls = i <= currentStep ? " is-done" : "";
+      const curCls = i === currentStep ? " is-current-dot" : "";
+      html += '<span class="step-dot' + doneCls + curCls + '"></span>';
     }
     stepDotsEl.innerHTML = html;
     if (stepLabelEl) {
@@ -1670,7 +1726,15 @@
   function goToSlide(index, step) {
     stopAutoPlay();
     stopWavAudio();
-    currentSlide = Math.max(0, Math.min(slides.length - 1, index));
+    const targetIdx = Math.max(0, Math.min(slides.length - 1, index));
+    const dirCls = targetIdx > currentSlide ? "dir-next" : (targetIdx < currentSlide ? "dir-prev" : "");
+    slides.forEach(function (s) {
+      s.classList.remove("dir-next", "dir-prev");
+    });
+    if (dirCls && slides[targetIdx]) {
+      slides[targetIdx].classList.add(dirCls);
+    }
+    currentSlide = targetIdx;
     const max = maxStepsFor(currentSlide);
     currentStep = Math.max(0, Math.min(max, step || 0));
     renderCurrentState();
